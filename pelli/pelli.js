@@ -1,4 +1,5 @@
 /*!
+ * Pelli v1.0 — official Pelli code (see CLAUDE.md). Use this copy on every site.
  * Pelli — a friendly, bilingual (English / Arabic) page assistant.
  * No AI model and no server: Pelli searches the words on the page (and any documents the site
  * registers), says where the answer is, summarizes, answers the time and date, and gives
@@ -581,6 +582,7 @@
   }
 
   const api = {
+    version: "1.0",
     init, open, close, ask, setLang,
     setKnowledge(items) { knowledge = items || []; },
     get lang() { return lang; },
