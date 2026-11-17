@@ -518,10 +518,16 @@ function sharedPrefix(a, b) {
 function rankDocs(text) {
   const raw = normalize(text);
   const q = tokens(text);
+  // "when / how many / متى / كم" questions want a date or number: prefer sentences that have one.
+  const wantsNumber = /(^| )(when|how many|how much|how long|متي|كم)( |$)/.test(raw);
+  const bonus = (s, score) => (wantsNumber && score > 0 && /\d/.test(s.en.replace(/\b20\d\d\b/g, "")) ? 0.5 : 0); // a year alone is not an answer
   return DOCUMENTS.map((d) => {
     const idHit = raw.includes(d.id.toLowerCase()) ? 5 : 0;
     const docTokens = tokens([d.title.en, d.title.ar, d.keywords, d.owner.en, d.owner.ar].join(" "));
-    const sentences = d.content.map((s, i) => ({ i, score: overlap(q, tokens(`${s.en} ${s.ar} ${s.k || ""}`)) }));
+    const sentences = d.content.map((s, i) => {
+      const score = overlap(q, tokens(`${s.en} ${s.ar} ${s.k || ""}`));
+      return { i, score: score + bonus(s, score) };
+    });
     const best = Math.max(...sentences.map((s) => s.score));
     return { d, sentences, score: idHit + overlap(q, docTokens) * 0.8 + best };
   }).sort((a, b) => b.score - a.score);
@@ -576,8 +582,8 @@ async function askDemo(text) {
 
   const bestScore = Math.max(...top.sentences.map((s) => s.score));
   const best = top.sentences
-    .filter((s) => s.score > 0 && s.score >= bestScore * 0.75) // keep only sentences nearly as relevant as the best one
-    .sort((a, b) => b.score - a.score).slice(0, 2).sort((a, b) => a.i - b.i);
+    .filter((s) => s.score > 0 && s.score > bestScore - 0.5) // keep only sentences about as relevant as the best one
+    .sort((a, b) => b.score - a.score).slice(0, 3).sort((a, b) => a.i - b.i);
   const picked = best.length ? best.map((s) => s.i) : [0];
   const body = picked.map((i) => top.d.content[i][lang]).join(" ");
   return { text: `${t("fromDoc")(top.d.title[lang])}\n${body}`, sources: [{ id: top.d.id, sentences: picked }] };

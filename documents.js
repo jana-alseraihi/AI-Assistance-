@@ -118,11 +118,14 @@ export const DOCUMENTS = [
     owner: { en: "Human Resources", ar: "الموارد البشرية" },
     updated: "2025-12-20",
     classification: "public",
-    keywords: "official holidays 2026 eid national day founding day calendar اجازات رسميه عيد اليوم الوطني يوم التاسيس تقويم",
+    keywords: "official holidays 2026 eid fitr adha aladha national day founding day calendar اجازات رسميه عيد اليوم الوطني يوم التاسيس تقويم",
     content: [
-      { en: "Official holidays in 2026: Founding Day, Eid al-Fitr, Eid al-Adha, and Saudi National Day.", ar: "الإجازات الرسمية في 2026: يوم التأسيس، وعيد الفطر، وعيد الأضحى، واليوم الوطني.", k: "which what list وش ايش قائمه" },
-      { en: "Founding Day is on 22 February and Saudi National Day is on 23 September.", ar: "يوم التأسيس في 22 فبراير، واليوم الوطني في 23 سبتمبر.", k: "when date founding national متى تاريخ" },
-      { en: "The exact dates of the Eid holidays are announced by an HR circular.", ar: "تُعلن المواعيد الدقيقة لإجازتي العيد بتعميم من الموارد البشرية.", k: "eid when عيد متى" },
+      { en: "Official holidays in 2026: Founding Day, Eid al-Fitr, Eid al-Adha, and Saudi National Day.", ar: "الإجازات الرسمية في 2026: يوم التأسيس، وعيد الفطر، وعيد الأضحى، واليوم الوطني.", k: "which what list all holidays وش ايش قائمه كل اجازات" },
+      { en: "Founding Day: Sunday 22 February 2026 (1 day).", ar: "يوم التأسيس: الأحد 22 فبراير 2026 (يوم واحد).", k: "founding day when date تاسيس متى تاريخ" },
+      { en: "Eid al-Fitr holiday: 4 days, from Thursday 19 March to Sunday 22 March 2026.", ar: "إجازة عيد الفطر: 4 أيام، من الخميس 19 مارس إلى الأحد 22 مارس 2026.", k: "eid fitr alfitr al-fitr ramadan when date holiday عيد الفطر فطر رمضان متى تاريخ اجازه" },
+      { en: "Eid al-Adha holiday: 4 days, from Tuesday 26 May to Friday 29 May 2026.", ar: "إجازة عيد الأضحى: 4 أيام، من الثلاثاء 26 مايو إلى الجمعة 29 مايو 2026.", k: "eid adha aladha al-adha hajj when date holiday عيد الاضحى اضحى حج متى تاريخ اجازه" },
+      { en: "Saudi National Day: Wednesday 23 September 2026 (1 day).", ar: "اليوم الوطني: الأربعاء 23 سبتمبر 2026 (يوم واحد).", k: "national day when date وطني متى تاريخ" },
+      { en: "Eid dates follow the Umm Al-Qura calendar and may move by a day; HR confirms them in a circular.", ar: "مواعيد العيد حسب تقويم أم القرى وقد تتغير بيوم؛ وتؤكدها الموارد البشرية بتعميم.", k: "exact change moon confirm مؤكد يتغير تعميم" },
     ],
   },
   {
