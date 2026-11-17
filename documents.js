@@ -1,5 +1,5 @@
 // Sample ECM document library (fictional demo data).
-// Shared by the web page (demo search) and the Cloudflare Worker (real AI mode).
+// Used by the demo search and by the local AI.
 // Each document has bilingual metadata and content split into sentences,
 // so the demo search can quote exact sentences as sources.
 

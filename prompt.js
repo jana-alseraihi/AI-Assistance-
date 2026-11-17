@@ -1,5 +1,5 @@
 // Instructions given to the AI model, shared by every AI mode
-// (in-browser local model, Ollama, and the Claude Worker).
+// (in-browser local model and Ollama).
 import { DOCUMENTS } from "./documents.js";
 
 // Documents as plain text. `lang` picks which language's sentences to include:

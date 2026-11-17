@@ -20,7 +20,7 @@ const T = {
     newChat: "New chat",
     inputPlaceholder: "Ask about any document…",
     langBtn: "العربية",
-    modes: { demo: "Demo (search only)", webllm: "Local AI · in browser", ollama: "Local AI · Ollama", claude: "Cloud AI · Claude" },
+    modes: { demo: "Demo (search only)", webllm: "Local AI · in browser", ollama: "Local AI · Ollama" },
     switched: (m) => `Switched to: ${m}`,
     loadingModel: (p) => `Loading the local AI model… ${p}%\n(first time only, it is saved in the browser after that)`,
     errNoWebGPU: "This browser can't run the local AI (WebGPU is not available). Use the latest Edge or Chrome, or choose another AI mode from the menu at the top.",
@@ -65,7 +65,7 @@ const T = {
     newChat: "محادثة جديدة",
     inputPlaceholder: "اسأل عن أي وثيقة…",
     langBtn: "English",
-    modes: { demo: "تجريبي (بحث فقط)", webllm: "ذكاء محلي · داخل المتصفح", ollama: "ذكاء محلي · Ollama", claude: "ذكاء سحابي · Claude" },
+    modes: { demo: "تجريبي (بحث فقط)", webllm: "ذكاء محلي · داخل المتصفح", ollama: "ذكاء محلي · Ollama" },
     switched: (m) => `تم التبديل إلى: ${m}`,
     loadingModel: (p) => `جاري تحميل نموذج الذكاء المحلي… ${p}%\n(أول مرة فقط، بعدها يُحفظ في المتصفح)`,
     errNoWebGPU: "هذا المتصفح لا يدعم تشغيل الذكاء المحلي (WebGPU غير متوفر). استخدم آخر إصدار من Edge أو Chrome، أو اختر وضعًا آخر من القائمة بالأعلى.",
@@ -102,7 +102,7 @@ try { lang = localStorage.getItem("ecm-lang") || "en"; } catch {}
 let activeCategory = "onboarding";
 let history = []; // [{role, content}] sent to the AI backend
 let currentDoc = null;
-const PROVIDERS = ["webllm", "ollama", "demo", ...(AI.claude.url ? ["claude"] : [])];
+const PROVIDERS = ["webllm", "ollama", "demo"];
 let provider = AI.provider;
 try { provider = localStorage.getItem("ecm-ai") || provider; } catch {}
 if (!PROVIDERS.includes(provider)) provider = "demo";
@@ -318,8 +318,7 @@ async function send(text) {
   const show = (txt) => { typing.textContent = txt; $("chatLog").scrollTop = $("chatLog").scrollHeight; };
   try {
     let answer;
-    if (provider === "claude") answer = await askClaude(text);
-    else if (provider === "webllm") answer = await askLocal(text, webllmChat, show);
+    if (provider === "webllm") answer = await askLocal(text, webllmChat, show);
     else if (provider === "ollama") answer = await askLocal(text, ollamaChat, show);
     else answer = await askDemo(text);
     typing.remove();
@@ -425,20 +424,6 @@ async function ollamaChat(messages, show) {
     show(out.replace(CITE, ""));
   }
   return out;
-}
-
-/* ---------------- Cloud AI (Cloudflare Worker → Claude) ---------------- */
-async function askClaude(text) {
-  history.push({ role: "user", content: text });
-  const res = await fetch(AI.claude.url, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ messages: history.slice(-12), lang }),
-  });
-  if (!res.ok) { history.pop(); throw new Error(`HTTP ${res.status}`); }
-  const data = await res.json();
-  history.push({ role: "assistant", content: data.reply });
-  return parseReply(data.reply);
 }
 
 /* ---------------- Demo mode (offline search) ---------------- */

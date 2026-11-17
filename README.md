@@ -29,10 +29,9 @@ A demo ECM (Enterprise Content Management) portal with an AI assistant that answ
 | **Local AI · in browser** (default) | Inside Edge/Chrome (WebLLM + WebGPU) | No | Recent Edge or Chrome, ~2 GB one-time download |
 | **Local AI · Ollama** | Ollama program on the same computer | No | Install Ollama + a model |
 | **Demo (search only)** | Keyword search, no AI model | No | Nothing |
-| **Cloud AI · Claude** | Claude API through a Cloudflare Worker | Yes (to the API) | API key + Worker (shown only when `claude.url` is set) |
 
-With local AI, the questions and documents never leave the computer. That is why it is the default for company documents.
-في الوضع المحلي، الأسئلة والوثائق ما تطلع من الجهاز أبدًا، عشان كذا هو الوضع الافتراضي.
+No cloud AI is used. The questions and documents never leave the computer.
+ما فيه أي ذكاء سحابي. الأسئلة والوثائق ما تطلع من الجهاز أبدًا.
 
 How it answers: the page first finds the most relevant documents (up to 4) with a keyword search, then gives only those to the model with instructions to answer from them and cite their IDs. Small models have small memory, so this keeps answers accurate.
 
@@ -73,21 +72,6 @@ setx OLLAMA_ORIGINS "https://your-username.github.io"
 
 Weaker laptop? Use `qwen2.5:3b` and change `ollama.model` in `config.js`.
 
-## 3) الذكاء السحابي (اختياري) | Cloud AI with Claude (optional)
-
-The questions go to the Claude API through a small Cloudflare Worker that keeps the API key secret. Use this only with documents that are allowed to leave the company network.
-
-You need: an Anthropic API key and a free Cloudflare account.
-
-```bash
-cd worker
-npm install
-npx wrangler login
-npx wrangler secret put ANTHROPIC_API_KEY     # paste your key
-```
-
-Edit `worker/wrangler.toml` and set `ALLOWED_ORIGINS` to your site address, then run `npx wrangler deploy` and put the Worker URL in `config.js` → `claude.url`. The "Cloud AI · Claude" option then appears in the menu.
-
 ## إضافة وثائق | Adding documents
 
 Add entries to `documents.js`. Every mode uses this file. In a real ECM, this file would be replaced by the ECM system's search API: search the repository, then give the top documents to the model. The instructions given to the model are in `prompt.js`.
@@ -107,11 +91,10 @@ The onboarding folder uses the real file names, but the text inside each documen
 | File | Purpose |
 |---|---|
 | `index.html`, `styles.css`, `app.js` | The portal and chat widget |
-| `documents.js` | Sample document library (shared with the Worker) |
+| `documents.js` | Sample document library |
 | `config.js` | AI mode and model settings |
 | `prompt.js` | Instructions given to the AI model |
 | `vendor/web-llm/` | In-browser AI library (Apache-2.0) |
-| `worker/` | Optional Cloudflare Worker for Claude |
 | `assets/` | Put the company logo here |
 
 ## ملاحظة عن الاستضافة | Hosting note
