@@ -139,6 +139,16 @@ button, input, textarea, select { font: inherit; color: inherit; }
 .sources { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
 .source-chip { border: 1px solid var(--border); background: var(--surface); border-radius: 4px; padding: 2px 10px; font-size: 12px; cursor: pointer; color: var(--blue-text); }
 .source-chip:hover { border-color: var(--blue); }
+.source-chip { display: inline-flex; align-items: center; gap: 6px; }
+.file-icon.mini { width: 14px; height: 17px; font-size: 7px; border-radius: 2px; }
+.file-card { display: flex; align-items: center; gap: 10px; margin-top: 8px; padding: 10px; background: var(--surface); border: 1px solid var(--border); border-radius: 6px; white-space: normal; }
+.file-info { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.file-name { font-weight: 700; font-size: 14px; overflow-wrap: anywhere; }
+.file-meta { font-size: 12px; color: var(--muted); }
+.file-actions { display: flex; gap: 6px; flex: none; }
+.file-btn { border: 1px solid var(--border); background: var(--surface); color: var(--blue-text); border-radius: 4px; padding: 4px 10px; font-size: 13px; cursor: pointer; }
+.file-btn.primary { background: var(--blue); border-color: var(--blue); color: var(--on-blue); }
+.file-btn:hover { filter: brightness(.95); }
 .typing { display: inline-flex; gap: 4px; }
 .typing span { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); animation: blink 1.2s infinite; }
 .typing span:nth-child(2) { animation-delay: .2s; }

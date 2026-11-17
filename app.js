@@ -22,6 +22,11 @@ const T = {
     langBtn: "العربية",
     modes: { demo: "Demo (search only)", webllm: "Local AI · in browser", ollama: "Local AI · Ollama" },
     switched: (m) => `Switched to: ${m}`,
+    hereIsFile: "Here is the file:",
+    hereAreFiles: "I found these files:",
+    fileNotFound: "I couldn't find a file with that name. Try part of the file name, for example \"ID form\" or \"log book\".",
+    open: "Open",
+    download: "Download",
     loadingModel: (p) => `Loading the local AI model… ${p}%\n(first time only, it is saved in the browser after that)`,
     errNoWebGPU: "This browser can't run the local AI (WebGPU is not available). Use the latest Edge or Chrome, or choose another AI mode from the menu at the top.",
     errWebllmLoad: "Couldn't download or start the local AI model. The network may be blocking the model download (huggingface.co). Ask IT to allow it, host the model files internally (see README), or use Ollama.",
@@ -67,6 +72,11 @@ const T = {
     langBtn: "English",
     modes: { demo: "تجريبي (بحث فقط)", webllm: "ذكاء محلي · داخل المتصفح", ollama: "ذكاء محلي · Ollama" },
     switched: (m) => `تم التبديل إلى: ${m}`,
+    hereIsFile: "تفضل الملف:",
+    hereAreFiles: "لقيت هذه الملفات:",
+    fileNotFound: "ما لقيت ملف بهذا الاسم. جرّب جزء من اسم الملف، مثل «نموذج الهوية» أو «سجل الاستقبال».",
+    open: "فتح",
+    download: "تحميل",
     loadingModel: (p) => `جاري تحميل نموذج الذكاء المحلي… ${p}%\n(أول مرة فقط، بعدها يُحفظ في المتصفح)`,
     errNoWebGPU: "هذا المتصفح لا يدعم تشغيل الذكاء المحلي (WebGPU غير متوفر). استخدم آخر إصدار من Edge أو Chrome، أو اختر وضعًا آخر من القائمة بالأعلى.",
     errWebllmLoad: "تعذر تحميل أو تشغيل نموذج الذكاء المحلي. قد تكون الشبكة تمنع تحميل النموذج (huggingface.co). اطلب من IT السماح به، أو استضف ملفات النموذج داخليًا (راجع README)، أو استخدم Ollama.",
@@ -258,9 +268,10 @@ function addMessage(role, text) {
 }
 
 // sources: [{id, sentences: [index]}]
-function addBotMessage(text, sources = [], isError = false) {
+function addBotMessage(text, sources = [], isError = false, files = []) {
   const el = addMessage("bot", text);
   if (isError) el.classList.add("error");
+  for (const d of files) el.appendChild(fileCard(d));
   if (sources.length) {
     const wrap = document.createElement("div");
     wrap.className = "sources";
@@ -270,13 +281,49 @@ function addBotMessage(text, sources = [], isError = false) {
       const chip = document.createElement("button");
       chip.type = "button";
       chip.className = "source-chip";
-      chip.textContent = `📄 ${d.id} · ${d.title[lang]}`;
+      chip.innerHTML = `<span class="file-icon mini ${d.file}">${FILE_LABEL[d.file] || ""}</span><span></span>`;
+      chip.lastChild.textContent = `${d.id} · ${d.title[lang]}`;
       chip.addEventListener("click", () => openDoc(d.id, s.sentences || []));
       wrap.appendChild(chip);
     }
     el.appendChild(wrap);
   }
   $("chatLog").scrollTop = $("chatLog").scrollHeight;
+}
+
+function fileCard(d) {
+  const card = document.createElement("div");
+  card.className = "file-card";
+  card.innerHTML = `
+    <span class="file-icon ${d.file}">${FILE_LABEL[d.file] || ""}</span>
+    <span class="file-info"><span class="file-name"></span><span class="file-meta"></span></span>
+    <span class="file-actions">
+      <button type="button" class="file-btn open"></button>
+      <button type="button" class="file-btn primary download"></button>
+    </span>`;
+  card.querySelector(".file-name").textContent = `${d.title[lang]}.${d.file}`;
+  card.querySelector(".file-meta").textContent = `${d.size} · ${d.owner[lang]}`;
+  card.querySelector(".open").textContent = t("open");
+  card.querySelector(".download").textContent = t("download");
+  card.querySelector(".open").addEventListener("click", () => openDoc(d.id));
+  card.querySelector(".download").addEventListener("click", () => downloadDoc(d));
+  return card;
+}
+
+// In the real ECM each document would have a `url` to the ECM download link.
+// In this demo the files are samples, so we generate a text copy of the document.
+function downloadDoc(d) {
+  if (d.url) { window.open(d.url, "_blank", "noopener"); return; }
+  const body = [`${d.title[lang]}`, `${d.id} · ${d.owner[lang]} · ${d.updated}`, "", ...d.content.map((s) => s[lang])].join("\r\n");
+  const blob = new Blob(["\ufeff" + body], { type: "text/plain;charset=utf-8" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  // ASCII file name: some browsers/PCs reject names with Arabic letters or long dashes.
+  a.download = (d.title.en.includes(d.id) ? d.title.en : `${d.id} - ${d.title.en}`).replace(/[\u2013\u2014]/g, "-").replace(/[^\w .()-]/g, "").trim() + ".txt";
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 1000);
 }
 
 function renderSuggestions() {
@@ -318,11 +365,12 @@ async function send(text) {
   const show = (txt) => { typing.textContent = txt; $("chatLog").scrollTop = $("chatLog").scrollHeight; };
   try {
     let answer;
-    if (provider === "webllm") answer = await askLocal(text, webllmChat, show);
+    if (isFileRequest(text)) answer = findFiles(text);
+    else if (provider === "webllm") answer = await askLocal(text, webllmChat, show);
     else if (provider === "ollama") answer = await askLocal(text, ollamaChat, show);
     else answer = await askDemo(text);
     typing.remove();
-    addBotMessage(answer.text, answer.sources);
+    addBotMessage(answer.text, answer.sources || [], false, answer.files || []);
   } catch (err) {
     console.error(err);
     typing.remove();
@@ -477,6 +525,30 @@ function rankDocs(text) {
     const best = Math.max(...sentences.map((s) => s.score));
     return { d, sentences, score: idHit + overlap(q, docTokens) * 0.8 + best };
   }).sort((a, b) => b.score - a.score);
+}
+
+// "send me the ... file", "download ...", "ارسل لي ملف ..." → return the file itself, not a summary.
+const FILE_WORDS = ["send me", "give me", "download", "attach", "file", "files", "the file",
+  "ارسل لي", "ارسلي", "رسل لي", "رسلي", "عطني", "اعطني", "ملف", "الملف", "تحميل", "حمل", "نزل"];
+const hasPhrase = (raw, w) => (` ${raw} `).includes(` ${w} `);
+function isFileRequest(text) {
+  const raw = normalize(text);
+  return FILE_WORDS.some((w) => hasPhrase(raw, w));
+}
+function findFiles(text) {
+  const raw = normalize(text);
+  const cleaned = FILE_WORDS.reduce((acc, w) => (` ${acc} `).split(` ${w} `).join(" ").trim(), raw);
+  const q = tokens(cleaned);
+  const scored = DOCUMENTS.map((d) => {
+    const titleScore = overlap(q, tokens(`${d.title.en} ${d.title.ar} ${d.id}`)) * 3;
+    const idHit = raw.includes(d.id.toLowerCase()) ? 10 : 0;
+    const docScore = rankDocs(cleaned).find((r) => r.d === d).score;
+    return { d, score: idHit + titleScore + docScore };
+  }).sort((a, b) => b.score - a.score);
+  const best = scored[0]?.score || 0;
+  if (best < 1) return { text: t("fileNotFound") };
+  const hits = scored.filter((r) => r.score >= best * 0.8).slice(0, 3).map((r) => r.d);
+  return { text: hits.length === 1 ? t("hereIsFile") : t("hereAreFiles"), files: hits };
 }
 
 async function askDemo(text) {
