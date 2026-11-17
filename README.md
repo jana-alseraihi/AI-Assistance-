@@ -20,17 +20,21 @@ A demo ECM (Enterprise Content Management) portal with an AI assistant that answ
 | تلخيص الوثائق | Document summaries |
 | احترام تصنيف السرية | Respects confidentiality labels |
 
-## الوضعين | Two modes
+## أوضاع الذكاء الاصطناعي | AI modes
 
-1. **Demo mode / الوضع التجريبي** (default): works with no server and no API key. A simple Arabic/English search over the sample documents finds the best matching sentences. Good for showing the idea.
-2. **AI mode / وضع الذكاء الاصطناعي**: the page sends questions to a small Cloudflare Worker, which calls Claude with all the documents. Claude answers in natural language, in the user's language, and cites document IDs.
+اختاري الوضع من القائمة أعلى الصفحة. Pick the mode from the menu at the top of the page.
 
-```
-Browser (index.html)  ──►  Cloudflare Worker (keeps API key secret)  ──►  Claude API
-```
+| Mode | Where the AI runs | Data leaves the device? | Needs |
+|---|---|---|---|
+| **Local AI · in browser** (default) | Inside Edge/Chrome (WebLLM + WebGPU) | No | Recent Edge or Chrome, ~2 GB one-time download |
+| **Local AI · Ollama** | Ollama program on the same computer | No | Install Ollama + a model |
+| **Demo (search only)** | Keyword search, no AI model | No | Nothing |
+| **Cloud AI · Claude** | Claude API through a Cloudflare Worker | Yes (to the API) | API key + Worker (shown only when `claude.url` is set) |
 
-The API key never goes in the website code. It is stored as a secret in the Worker.
-مفتاح الـ API ما ينحط أبدًا في كود الموقع، ينحفظ كـ secret داخل الـ Worker.
+With local AI, the questions and documents never leave the computer. That is why it is the default for company documents.
+في الوضع المحلي، الأسئلة والوثائق ما تطلع من الجهاز أبدًا، عشان كذا هو الوضع الافتراضي.
+
+How it answers: the page first finds the most relevant documents (up to 4) with a keyword search, then gives only those to the model with instructions to answer from them and cite their IDs. Small models have small memory, so this keeps answers accurate.
 
 ## تشغيل محلي | Run locally
 
@@ -39,9 +43,41 @@ python3 -m http.server 8000
 # open http://localhost:8000
 ```
 
-## تفعيل الذكاء الاصطناعي | Enable AI mode
+Open the page with `http://localhost` (or https). The in-browser AI does not work from a `file://` address.
 
-You need: an Anthropic API key (console.anthropic.com) and a free Cloudflare account.
+## 1) الذكاء داخل المتصفح | Local AI in the browser (WebLLM)
+
+Nothing to install. The first question downloads the model (Qwen2.5 3B, about 2 GB) and the browser saves it; after that it starts in seconds and works offline.
+
+- Needs a recent **Edge or Chrome** (WebGPU). A laptop with 8 GB RAM or more is recommended.
+- Change the model in `config.js` → `webllm.model`. Faster: `Qwen2.5-1.5B-Instruct-q4f16_1-MLC`. Better answers on strong machines: `Qwen2.5-7B-Instruct-q4f16_1-MLC`.
+- **Company network blocks the download?** The model comes from `huggingface.co`. Either ask IT to allow it, or download the model folder once (`https://huggingface.co/mlc-ai/Qwen2.5-3B-Instruct-q4f16_1-MLC`), put it on an internal server, and set `webllm.modelUrl` in `config.js` to that address.
+- The WebLLM library itself is included in `vendor/web-llm/`, so it doesn't need a CDN.
+
+## 2) الذكاء عبر Ollama | Local AI with Ollama
+
+Stronger model, faster answers, but needs installing (check with IT on a company laptop).
+
+1. Install Ollama from https://ollama.com
+2. Download the model (about 4.7 GB):
+   ```bash
+   ollama pull qwen2.5:7b
+   ```
+3. Ollama runs in the background on `http://localhost:11434`. Open the page from `http://localhost:8000` and choose **Local AI · Ollama**.
+
+If the page is opened from another address (for example GitHub Pages), allow it in Ollama first:
+```bash
+# Windows (PowerShell), then restart Ollama
+setx OLLAMA_ORIGINS "https://your-username.github.io"
+```
+
+Weaker laptop? Use `qwen2.5:3b` and change `ollama.model` in `config.js`.
+
+## 3) الذكاء السحابي (اختياري) | Cloud AI with Claude (optional)
+
+The questions go to the Claude API through a small Cloudflare Worker that keeps the API key secret. Use this only with documents that are allowed to leave the company network.
+
+You need: an Anthropic API key and a free Cloudflare account.
 
 ```bash
 cd worker
@@ -50,23 +86,11 @@ npx wrangler login
 npx wrangler secret put ANTHROPIC_API_KEY     # paste your key
 ```
 
-Edit `worker/wrangler.toml` and set `ALLOWED_ORIGINS` to your site address (for example `https://your-username.github.io`), then:
-
-```bash
-npx wrangler deploy
-```
-
-Copy the Worker URL it prints into `config.js`:
-
-```js
-export const API_URL = "https://ecm-assistant.<your-subdomain>.workers.dev";
-```
-
-The badge at the top of the page changes from "Demo mode" to "AI connected".
+Edit `worker/wrangler.toml` and set `ALLOWED_ORIGINS` to your site address, then run `npx wrangler deploy` and put the Worker URL in `config.js` → `claude.url`. The "Cloud AI · Claude" option then appears in the menu.
 
 ## إضافة وثائق | Adding documents
 
-Add entries to `documents.js`. Both the demo search and the AI use this file. In a real ECM, this file would be replaced by the ECM system's API (for example, search the repository, then send the top documents to Claude).
+Add entries to `documents.js`. Every mode uses this file. In a real ECM, this file would be replaced by the ECM system's search API: search the repository, then give the top documents to the model. The instructions given to the model are in `prompt.js`.
 
 ## الشعار | Logo
 
@@ -84,8 +108,10 @@ The onboarding folder uses the real file names, but the text inside each documen
 |---|---|
 | `index.html`, `styles.css`, `app.js` | The portal and chat widget |
 | `documents.js` | Sample document library (shared with the Worker) |
-| `config.js` | Worker URL (empty = demo mode) |
-| `worker/` | Cloudflare Worker that calls Claude |
+| `config.js` | AI mode and model settings |
+| `prompt.js` | Instructions given to the AI model |
+| `vendor/web-llm/` | In-browser AI library (Apache-2.0) |
+| `worker/` | Optional Cloudflare Worker for Claude |
 | `assets/` | Put the company logo here |
 
 ## ملاحظة عن الاستضافة | Hosting note

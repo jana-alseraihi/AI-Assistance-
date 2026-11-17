@@ -1,5 +1,6 @@
 import { DOCUMENTS, CATEGORIES } from "./documents.js";
-import { API_URL } from "./config.js";
+import { AI } from "./config.js";
+import { buildSystemPrompt } from "./prompt.js";
 
 /* ---------------- UI text (English / Arabic) ---------------- */
 const T = {
@@ -19,8 +20,12 @@ const T = {
     newChat: "New chat",
     inputPlaceholder: "Ask about any document…",
     langBtn: "العربية",
-    modeDemo: "Demo mode",
-    modeLive: "AI connected",
+    modes: { demo: "Demo (search only)", webllm: "Local AI · in browser", ollama: "Local AI · Ollama", claude: "Cloud AI · Claude" },
+    switched: (m) => `Switched to: ${m}`,
+    loadingModel: (p) => `Loading the local AI model… ${p}%\n(first time only, it is saved in the browser after that)`,
+    errNoWebGPU: "This browser can't run the local AI (WebGPU is not available). Use the latest Edge or Chrome, or choose another AI mode from the menu at the top.",
+    errWebllmLoad: "Couldn't download or start the local AI model. The network may be blocking the model download (huggingface.co). Ask IT to allow it, host the model files internally (see README), or use Ollama.",
+    errOllama: (u) => `Can't reach Ollama at ${u}. Make sure Ollama is running and the model is installed (see README).`,
     updated: "Updated",
     owner: "Owner",
     noDocs: "No documents match your search.",
@@ -60,8 +65,12 @@ const T = {
     newChat: "محادثة جديدة",
     inputPlaceholder: "اسأل عن أي وثيقة…",
     langBtn: "English",
-    modeDemo: "وضع تجريبي",
-    modeLive: "متصل بالذكاء الاصطناعي",
+    modes: { demo: "تجريبي (بحث فقط)", webllm: "ذكاء محلي · داخل المتصفح", ollama: "ذكاء محلي · Ollama", claude: "ذكاء سحابي · Claude" },
+    switched: (m) => `تم التبديل إلى: ${m}`,
+    loadingModel: (p) => `جاري تحميل نموذج الذكاء المحلي… ${p}%\n(أول مرة فقط، بعدها يُحفظ في المتصفح)`,
+    errNoWebGPU: "هذا المتصفح لا يدعم تشغيل الذكاء المحلي (WebGPU غير متوفر). استخدم آخر إصدار من Edge أو Chrome، أو اختر وضعًا آخر من القائمة بالأعلى.",
+    errWebllmLoad: "تعذر تحميل أو تشغيل نموذج الذكاء المحلي. قد تكون الشبكة تمنع تحميل النموذج (huggingface.co). اطلب من IT السماح به، أو استضف ملفات النموذج داخليًا (راجع README)، أو استخدم Ollama.",
+    errOllama: (u) => `تعذر الاتصال بـ Ollama على ${u}. تأكد أن Ollama شغال وأن النموذج مثبت (راجع README).`,
     updated: "آخر تحديث",
     owner: "المالك",
     noDocs: "لا توجد وثائق مطابقة لبحثك.",
@@ -93,7 +102,10 @@ try { lang = localStorage.getItem("ecm-lang") || "en"; } catch {}
 let activeCategory = "onboarding";
 let history = []; // [{role, content}] sent to the AI backend
 let currentDoc = null;
-const LIVE = Boolean(API_URL);
+const PROVIDERS = ["webllm", "ollama", "demo", ...(AI.claude.url ? ["claude"] : [])];
+let provider = AI.provider;
+try { provider = localStorage.getItem("ecm-ai") || provider; } catch {}
+if (!PROVIDERS.includes(provider)) provider = "demo";
 
 const $ = (id) => document.getElementById(id);
 const t = (key) => T[lang][key];
@@ -108,8 +120,7 @@ function applyLanguage() {
   document.querySelectorAll("[data-i18n-placeholder]").forEach((el) => (el.placeholder = t(el.dataset.i18nPlaceholder)));
   document.querySelectorAll("[data-i18n-title]").forEach((el) => (el.title = t(el.dataset.i18nTitle)));
   $("langBtn").textContent = t("langBtn");
-  $("modeBadge").textContent = LIVE ? t("modeLive") : t("modeDemo");
-  $("modeBadge").classList.toggle("live", LIVE);
+  renderProviderSelect();
   renderCategories();
   renderDocs();
   renderSuggestions();
@@ -121,6 +132,27 @@ $("langBtn").addEventListener("click", () => {
   try { localStorage.setItem("ecm-lang", lang); } catch {}
   resetChat();
   applyLanguage();
+});
+
+/* ---------------- AI mode menu ---------------- */
+function renderProviderSelect() {
+  const sel = $("aiSelect");
+  sel.innerHTML = "";
+  for (const p of PROVIDERS) {
+    const opt = document.createElement("option");
+    opt.value = p;
+    opt.textContent = t("modes")[p];
+    opt.selected = p === provider;
+    sel.appendChild(opt);
+  }
+  sel.classList.toggle("demo", provider === "demo");
+}
+$("aiSelect").addEventListener("change", (e) => {
+  provider = e.target.value;
+  try { localStorage.setItem("ecm-ai", provider); } catch {}
+  renderProviderSelect();
+  history = [];
+  addMessage("note", t("switched")(t("modes")[provider]));
 });
 
 /* ---------------- Library ---------------- */
@@ -282,23 +314,123 @@ async function send(text) {
   addMessage("user", text);
   const typing = addMessage("bot", "");
   typing.innerHTML = `<span class="typing"><span></span><span></span><span></span></span>`;
+  // Live text in the bubble while a local model streams its answer or loads.
+  const show = (txt) => { typing.textContent = txt; $("chatLog").scrollTop = $("chatLog").scrollHeight; };
   try {
-    const answer = LIVE ? await askAI(text) : await askDemo(text);
+    let answer;
+    if (provider === "claude") answer = await askClaude(text);
+    else if (provider === "webllm") answer = await askLocal(text, webllmChat, show);
+    else if (provider === "ollama") answer = await askLocal(text, ollamaChat, show);
+    else answer = await askDemo(text);
     typing.remove();
     addBotMessage(answer.text, answer.sources);
   } catch (err) {
     console.error(err);
     typing.remove();
-    addBotMessage(t("error"), [], true);
+    addBotMessage(err.userMessage || t("error"), [], true);
   } finally {
     busy = false;
   }
 }
 
-/* ---------------- Real AI mode (Cloudflare Worker → Claude) ---------------- */
-async function askAI(text) {
+/* ---------------- Citations: [DOC-ID] → source chips ---------------- */
+const CITE = /\s?\[([A-Z]{2,4}-[\w-]+)\]/g;
+function parseReply(reply, fallbackDoc) {
+  const ids = [...new Set([...reply.matchAll(CITE)].map((m) => m[1]))].filter(docById);
+  // Small local models sometimes forget to cite; fall back to the best-matching document.
+  if (!ids.length && fallbackDoc) ids.push(fallbackDoc.id);
+  return { text: reply.replace(CITE, "").trim(), sources: ids.map((id) => ({ id })) };
+}
+const isArabic = (s) => /[\u0600-\u06FF]/.test(s);
+function userError(message) { const e = new Error(message); e.userMessage = message; return e; }
+
+/* ---------------- Local AI (runs on this device) ---------------- */
+async function askLocal(text, chat, show) {
+  // Retrieval: give the model only the most relevant documents (small models have small context windows).
+  const ranked = rankDocs(text);
+  const relevant = ranked.filter((r) => r.score >= 1).slice(0, 4).map((r) => r.d);
+  const contextDocs = relevant.length ? relevant : ranked.slice(0, 4).map((r) => r.d);
+  const replyLang = isArabic(text) ? "ar" : "en";
+  const system = buildSystemPrompt(contextDocs, replyLang) +
+    (replyLang === "ar" ? "\n\nأجب باللغة العربية فقط." : "\n\nAnswer in English only.");
+
+  const messages = [{ role: "system", content: system }, ...history.slice(-6), { role: "user", content: text }];
+  const reply = (await chat(messages, show)).trim();
+  history.push({ role: "user", content: text }, { role: "assistant", content: reply });
+  return parseReply(reply, relevant[0]);
+}
+
+// In-browser model with WebLLM (WebGPU). Loaded once on first use, then cached by the browser.
+let webllmEngine = null;
+async function webllmChat(messages, show) {
+  if (!navigator.gpu) throw userError(t("errNoWebGPU"));
+  if (!webllmEngine) {
+    try {
+      const webllm = await import("./vendor/web-llm/index.js");
+      const engineConfig = {
+        initProgressCallback: (r) => show(t("loadingModel")(Math.round((r.progress || 0) * 100))),
+      };
+      // Optional: load the model files from your own server instead of huggingface.co.
+      if (AI.webllm.modelUrl) {
+        const base = webllm.prebuiltAppConfig.model_list.find((m) => m.model_id === AI.webllm.model);
+        engineConfig.appConfig = {
+          ...webllm.prebuiltAppConfig,
+          model_list: [{ ...base, model: AI.webllm.modelUrl, ...(AI.webllm.modelLibUrl ? { model_lib: AI.webllm.modelLibUrl } : {}) }],
+        };
+      }
+      webllmEngine = await webllm.CreateMLCEngine(AI.webllm.model, engineConfig);
+    } catch (err) {
+      console.error(err);
+      webllmEngine = null;
+      throw userError(`${t("errWebllmLoad")}\n(${err.message || err})`);
+    }
+  }
+  const stream = await webllmEngine.chat.completions.create({ messages, stream: true, temperature: 0.2, max_tokens: 500 });
+  let out = "";
+  for await (const chunk of stream) {
+    out += chunk.choices[0]?.delta?.content || "";
+    show(out.replace(CITE, ""));
+  }
+  return out;
+}
+
+// Ollama running on this computer (http://localhost:11434). Streams newline-delimited JSON.
+async function ollamaChat(messages, show) {
+  let res;
+  try {
+    res = await fetch(`${AI.ollama.url}/api/chat`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ model: AI.ollama.model, messages, stream: true, options: { temperature: 0.2 } }),
+    });
+  } catch {
+    throw userError(t("errOllama")(AI.ollama.url));
+  }
+  if (!res.ok) throw userError(t("errOllama")(AI.ollama.url) + ` (HTTP ${res.status})`);
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let buf = "", out = "";
+  for (;;) {
+    const { done, value } = await reader.read();
+    if (done) break;
+    buf += decoder.decode(value, { stream: true });
+    const lines = buf.split("\n");
+    buf = lines.pop();
+    for (const line of lines) {
+      if (!line.trim()) continue;
+      const data = JSON.parse(line);
+      if (data.error) throw userError(`Ollama: ${data.error}`);
+      out += data.message?.content || "";
+    }
+    show(out.replace(CITE, ""));
+  }
+  return out;
+}
+
+/* ---------------- Cloud AI (Cloudflare Worker → Claude) ---------------- */
+async function askClaude(text) {
   history.push({ role: "user", content: text });
-  const res = await fetch(API_URL, {
+  const res = await fetch(AI.claude.url, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ messages: history.slice(-12), lang }),
@@ -306,10 +438,7 @@ async function askAI(text) {
   if (!res.ok) { history.pop(); throw new Error(`HTTP ${res.status}`); }
   const data = await res.json();
   history.push({ role: "assistant", content: data.reply });
-  // The model cites documents as [DOC-ID]; turn them into source chips.
-  const ids = [...new Set([...data.reply.matchAll(/\[([A-Z]{2,4}-[\w-]+)\]/g)].map((m) => m[1]))].filter(docById);
-  const clean = data.reply.replace(/\s?\[([A-Z]{2,4}-[\w-]+)\]/g, "").trim();
-  return { text: clean, sources: ids.map((id) => ({ id })) };
+  return parseReply(data.reply);
 }
 
 /* ---------------- Demo mode (offline search) ---------------- */
@@ -352,6 +481,19 @@ function sharedPrefix(a, b) {
   return i;
 }
 
+// Score every document and every sentence against the question (used by demo mode and local AI retrieval).
+function rankDocs(text) {
+  const raw = normalize(text);
+  const q = tokens(text);
+  return DOCUMENTS.map((d) => {
+    const idHit = raw.includes(d.id.toLowerCase()) ? 5 : 0;
+    const docTokens = tokens([d.title.en, d.title.ar, d.keywords, d.owner.en, d.owner.ar].join(" "));
+    const sentences = d.content.map((s, i) => ({ i, score: overlap(q, tokens(`${s.en} ${s.ar} ${s.k || ""}`)) }));
+    const best = Math.max(...sentences.map((s) => s.score));
+    return { d, sentences, score: idHit + overlap(q, docTokens) * 0.8 + best };
+  }).sort((a, b) => b.score - a.score);
+}
+
 async function askDemo(text) {
   await new Promise((r) => setTimeout(r, 450)); // feel like a real assistant
   const raw = normalize(text);
@@ -365,15 +507,7 @@ async function askDemo(text) {
     return { text: `${t("listIntro")}\n${lines}`, sources: [] };
   }
 
-  // Score every document and every sentence.
-  const ranked = DOCUMENTS.map((d) => {
-    const idHit = raw.includes(d.id.toLowerCase()) ? 5 : 0;
-    const docTokens = tokens([d.title.en, d.title.ar, d.keywords, d.owner.en, d.owner.ar].join(" "));
-    const sentences = d.content.map((s, i) => ({ i, score: overlap(q, tokens(`${s.en} ${s.ar} ${s.k || ""}`)) }));
-    const best = Math.max(...sentences.map((s) => s.score));
-    return { d, sentences, score: idHit + overlap(q, docTokens) * 0.8 + best };
-  }).sort((a, b) => b.score - a.score);
-
+  const ranked = rankDocs(text);
   const top = ranked[0];
   if (!top || top.score < 1) return { text: t("notFound"), sources: [] };
 

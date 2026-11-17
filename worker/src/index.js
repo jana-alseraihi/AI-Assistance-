@@ -1,25 +1,13 @@
 // Cloudflare Worker: keeps the Anthropic API key secret and answers
 // questions about the ECM documents using Claude.
 import Anthropic from "@anthropic-ai/sdk";
-import { documentsAsText } from "../../documents.js";
+import { buildSystemPrompt } from "../../prompt.js";
 
 const MAX_MESSAGES = 12;
 const MAX_CHARS = 2000;
 
 // Built once; identical on every request so prompt caching can reuse it.
-const SYSTEM_PROMPT = `You are the Document Assistant for a company's ECM (Enterprise Content Management) portal.
-You answer employees' questions using only the documents below.
-
-How to answer:
-- Answer in the same language as the user's latest message (Arabic or English). For Arabic, use clear, friendly Modern Standard Arabic; Saudi phrasing is fine.
-- Keep answers short: 1 to 4 sentences, or a short bulleted list when listing items. Plain text only, no Markdown headings or bold.
-- After each fact, cite the document it came from with its ID in square brackets, like [POL-001]. Only cite IDs that appear below.
-- If the documents don't contain the answer, say so plainly and suggest which team (document owner) to contact. Never invent dates, amounts, or rules.
-- Respect classification: you may describe what a Confidential or Secret document says to the user, but remind them not to share it outside the company when relevant.
-
-<documents>
-${documentsAsText()}
-</documents>`;
+const SYSTEM_PROMPT = buildSystemPrompt();
 
 export default {
   async fetch(request, env) {

@@ -234,18 +234,3 @@ export const CATEGORIES = {
   finance: { en: "Finance", ar: "المالية" },
   procedure: { en: "Procedures", ar: "الإجراءات" },
 };
-
-// Plain-text version of the library for the AI system prompt.
-export function documentsAsText() {
-  return DOCUMENTS.map((d) =>
-    [
-      `<document id="${d.id}">`,
-      `Title: ${d.title.en} / ${d.title.ar}`,
-      `Owner: ${d.owner.en}`,
-      `Last updated: ${d.updated}`,
-      `Classification: ${d.classification}`,
-      ...d.content.map((s) => `- ${s.en}`),
-      `</document>`,
-    ].join("\n")
-  ).join("\n\n");
-}

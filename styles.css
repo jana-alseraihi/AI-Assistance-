@@ -53,8 +53,9 @@ button, input, textarea, select { font: inherit; color: inherit; }
 .search { display: flex; align-items: center; gap: 8px; border: 1px solid var(--border); border-radius: 22px; padding: 7px 14px; color: var(--muted); width: 240px; }
 .search input { border: 0; outline: 0; background: transparent; width: 100%; color: var(--text); }
 .search:focus-within { border-color: var(--blue); }
-.mode-badge { font-size: 12px; padding: 3px 10px; border-radius: 999px; background: var(--warn-soft); color: var(--warn); white-space: nowrap; }
-.mode-badge.live { background: var(--blue-soft); color: var(--blue-text); }
+.mode-select { font-size: 13px; padding: 5px 10px; border-radius: 18px; border: 1px solid var(--border); background: var(--blue-soft); color: var(--blue-text); cursor: pointer; max-width: 210px; }
+.mode-select.demo { background: var(--warn-soft); color: var(--warn); }
+.msg.note { align-self: center; background: transparent; color: var(--muted); font-size: 12px; padding: 0; }
 .lang-btn { border: 1px solid var(--border); background: var(--surface); border-radius: 18px; padding: 5px 12px; cursor: pointer; }
 .lang-btn:hover { background: var(--surface-2); }
 .avatar { width: 40px; height: 40px; border-radius: 50%; background: var(--surface-2); color: var(--muted); display: grid; place-items: center; font-size: 14px; flex: none; }
