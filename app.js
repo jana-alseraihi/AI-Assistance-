@@ -6,8 +6,8 @@ import { buildSystemPrompt } from "./prompt.js";
 const T = {
   en: {
     brandSub: "Enterprise Content Management",
-    crumbHome: "Workforce Development",
-    crumbArchive: "Department Archive",
+    crumbHome: "Human Resources",
+    crumbArchive: "Shared Documents",
     colName: "Name",
     colSize: "Size",
     colModified: "Modified",
@@ -24,7 +24,7 @@ const T = {
     switched: (m) => `Switched to: ${m}`,
     hereIsFile: "Here is the file:",
     hereAreFiles: "I found these files:",
-    fileNotFound: "I couldn't find a file with that name. Try part of the file name, for example \"ID form\" or \"log book\".",
+    fileNotFound: "I couldn't find a file with that name. Try part of the file name, for example \"leave\" or \"training form\".",
     open: "Open",
     download: "Download",
     loadingModel: (p) => `Loading the local AI model… ${p}%\n(first time only, it is saved in the browser after that)`,
@@ -34,7 +34,7 @@ const T = {
     updated: "Updated",
     owner: "Owner",
     noDocs: "No documents match your search.",
-    welcome: "Hi! I'm your document assistant. Ask me about onboarding, forms, policies, or contracts, and I'll answer from the documents and show you the source.",
+    welcome: "Hi! I'm your document assistant. Ask me about leave, training, forms, policies, or contracts, and I'll answer from the documents and show you the source.",
     notFound: "I couldn't find that in the documents. Try different words, or open the library to browse.",
     fromDoc: (t) => `From “${t}”:`,
     summaryOf: (t) => `Summary of “${t}”:`,
@@ -43,10 +43,10 @@ const T = {
     askAboutPrompt: (id) => `Summarize document ${id}`,
     error: "Sorry, the assistant couldn't be reached. Please try again.",
     suggestions: [
-      "What are the onboarding steps?",
-      "How do I get an ID badge?",
-      "How do I request safety shoes?",
-      "What do I need for a vehicle permit?",
+      "What should I do in my first week?",
+      "How many annual leave days do I get?",
+      "How do I request a training course?",
+      "Send me the IT access form",
       "When does the IT support contract end?",
       "Can I work from home?",
       "What approvals do I need to buy something for SAR 30,000?",
@@ -56,8 +56,8 @@ const T = {
   },
   ar: {
     brandSub: "نظام إدارة المحتوى المؤسسي",
-    crumbHome: "تطوير القوى العاملة",
-    crumbArchive: "أرشيف الإدارة",
+    crumbHome: "الموارد البشرية",
+    crumbArchive: "المستندات المشتركة",
     colName: "الاسم",
     colSize: "الحجم",
     colModified: "آخر تعديل",
@@ -74,7 +74,7 @@ const T = {
     switched: (m) => `تم التبديل إلى: ${m}`,
     hereIsFile: "تفضل الملف:",
     hereAreFiles: "لقيت هذه الملفات:",
-    fileNotFound: "ما لقيت ملف بهذا الاسم. جرّب جزء من اسم الملف، مثل «نموذج الهوية» أو «سجل الاستقبال».",
+    fileNotFound: "ما لقيت ملف بهذا الاسم. جرّب جزء من اسم الملف، مثل «الإجازة» أو «نموذج التدريب».",
     open: "فتح",
     download: "تحميل",
     loadingModel: (p) => `جاري تحميل نموذج الذكاء المحلي… ${p}%\n(أول مرة فقط، بعدها يُحفظ في المتصفح)`,
@@ -84,7 +84,7 @@ const T = {
     updated: "آخر تحديث",
     owner: "المالك",
     noDocs: "لا توجد وثائق مطابقة لبحثك.",
-    welcome: "أهلًا! أنا مساعد الوثائق. اسألني عن الاستقبال أو النماذج أو السياسات أو العقود، وأجاوبك من الوثائق مع ذكر المصدر.",
+    welcome: "أهلًا! أنا مساعد الوثائق. اسألني عن الإجازات أو التدريب أو النماذج أو السياسات أو العقود، وأجاوبك من الوثائق مع ذكر المصدر.",
     notFound: "ما لقيت إجابة في الوثائق. جرّب كلمات ثانية، أو تصفح المكتبة.",
     fromDoc: (t) => `من «${t}»:`,
     summaryOf: (t) => `ملخص «${t}»:`,
@@ -93,10 +93,10 @@ const T = {
     askAboutPrompt: (id) => `لخص الوثيقة ${id}`,
     error: "عذرًا، تعذر الوصول إلى المساعد. حاول مرة أخرى.",
     suggestions: [
-      "وش مراحل الاستقبال؟",
-      "كيف أطلع بطاقة الهوية؟",
-      "كيف أطلب جزمة السلامة؟",
-      "وش أحتاج لتصريح السيارة؟",
+      "وش أسوي في أول أسبوع؟",
+      "كم يوم إجازتي السنوية؟",
+      "كيف أطلب دورة تدريبية؟",
+      "ارسل لي نموذج صلاحيات الأنظمة",
       "متى ينتهي عقد الدعم الفني؟",
       "هل أقدر أشتغل من البيت؟",
       "وش الموافقات المطلوبة لشراء بقيمة 30 ألف ريال؟",
@@ -109,7 +109,7 @@ const T = {
 /* ---------------- State ---------------- */
 let lang = "en";
 try { lang = localStorage.getItem("ecm-lang") || "en"; } catch {}
-let activeCategory = "onboarding";
+let activeCategory = "employee";
 let history = []; // [{role, content}] sent to the AI backend
 let currentDoc = null;
 const PROVIDERS = ["webllm", "ollama", "demo"];
@@ -478,7 +478,7 @@ async function ollamaChat(messages, show) {
 const STOP = new Set(("the a an is are was were do does did i we you it of to in on for and or what when how which who can could should "
   + "my our me about this that with be have has any there much many long need tell please is will "
   + "في من على عن الى إلى ما ماذا متى كيف هل هو هي انا أنا وش ايش كم مع او أو ان أن هذا هذه التي الذي لي عندي ابغى ابي اقدر أقدر").split(" "));
-const SUMMARY_WORDS = ["summarize", "summary", "summarise", "overview", "steps", "لخص", "ملخص", "تلخيص", "نبذه", "مراحل", "خطوات"];
+const SUMMARY_WORDS = ["summarize", "summary", "summarise", "overview", "steps", "first week", "لخص", "اول اسبوع", "ملخص", "تلخيص", "نبذه", "مراحل", "خطوات"];
 const LIST_WORDS = ["documents", "list", "الوثائق", "المستندات", "قائمه"];
 const GREET_WORDS = ["hi", "hello", "hey", "مرحبا", "السلام", "هلا", "اهلا"];
 

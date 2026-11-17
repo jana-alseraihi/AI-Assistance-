@@ -83,8 +83,8 @@ Put the official logo at `assets/logo.png` and it appears in the top corner auto
 
 ## ملاحظة عن محتوى الوثائق | About the document content
 
-ملفات مجلد «In Boarding Logbook» أسماؤها مثل الموقع، لكن محتواها نصوص تجريبية للعرض فقط. استبدليها بالمحتوى الحقيقي قبل أي استخدام فعلي.
-The onboarding folder uses the real file names, but the text inside each document is sample content written for the demo. Replace it with the real content before any real use.
+كل الوثائق والمجلدات في هذا العرض من تأليف العرض نفسه، ولا علاقة لها بملفات حقيقية.
+All folders and documents in this demo are invented for the demo. None of them are real company files.
 
 ## الملفات | Files
 
