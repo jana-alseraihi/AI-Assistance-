@@ -29,6 +29,7 @@ const T = {
     download: "Download",
     loadingModel: (p) => `Loading the local AI model… ${p}%\n(first time only, it is saved in the browser after that)`,
     errNoWebGPU: "This browser can't run the local AI (WebGPU is not available). Use the latest Edge or Chrome, or choose another AI mode from the menu at the top.",
+    errBlocked: (h) => `The network is blocking the AI model download from: ${h}.\nOptions: try on another network (e.g. home Wi-Fi) once, then it works offline; ask IT to allow these sites; or host the model on an internal server (see README). Meanwhile, choose "Demo" from the menu.`,
     errWebllmLoad: "Couldn't download or start the local AI model. The network may be blocking the model download (huggingface.co). Ask IT to allow it, host the model files internally (see README), or use Ollama.",
     errOllama: (u) => `Can't reach Ollama at ${u}. Make sure Ollama is running and the model is installed (see README).`,
     updated: "Updated",
@@ -79,6 +80,7 @@ const T = {
     download: "تحميل",
     loadingModel: (p) => `جاري تحميل نموذج الذكاء المحلي… ${p}%\n(أول مرة فقط، بعدها يُحفظ في المتصفح)`,
     errNoWebGPU: "هذا المتصفح لا يدعم تشغيل الذكاء المحلي (WebGPU غير متوفر). استخدم آخر إصدار من Edge أو Chrome، أو اختر وضعًا آخر من القائمة بالأعلى.",
+    errBlocked: (h) => `الشبكة تمنع تحميل نموذج الذكاء من: ${h}.\nالحلول: حمّله مرة وحدة من شبكة ثانية (مثل واي فاي البيت) وبعدها يشتغل بدون إنترنت، أو اطلب من IT السماح بهذه المواقع، أو استضف النموذج على سيرفر داخلي (راجع README). وبالوقت الحالي اختر «تجريبي» من القائمة.`,
     errWebllmLoad: "تعذر تحميل أو تشغيل نموذج الذكاء المحلي. قد تكون الشبكة تمنع تحميل النموذج (huggingface.co). اطلب من IT السماح به، أو استضف ملفات النموذج داخليًا (راجع README)، أو استخدم Ollama.",
     errOllama: (u) => `تعذر الاتصال بـ Ollama على ${u}. تأكد أن Ollama شغال وأن النموذج مثبت (راجع README).`,
     updated: "آخر تحديث",
@@ -414,21 +416,29 @@ async function webllmChat(messages, show) {
   if (!webllmEngine) {
     try {
       const webllm = await import("./vendor/web-llm/index.js");
-      const engineConfig = {
-        initProgressCallback: (r) => show(t("loadingModel")(Math.round((r.progress || 0) * 100))),
+      const base = webllm.prebuiltAppConfig.model_list.find((m) => m.model_id === AI.webllm.model);
+      const record = {
+        ...base,
+        ...(AI.webllm.modelUrl ? { model: AI.webllm.modelUrl } : {}),
+        ...(AI.webllm.modelLibUrl ? { model_lib: AI.webllm.modelLibUrl } : {}),
       };
-      // Optional: load the model files from your own server instead of huggingface.co.
-      if (AI.webllm.modelUrl) {
-        const base = webllm.prebuiltAppConfig.model_list.find((m) => m.model_id === AI.webllm.model);
-        engineConfig.appConfig = {
-          ...webllm.prebuiltAppConfig,
-          model_list: [{ ...base, model: AI.webllm.modelUrl, ...(AI.webllm.modelLibUrl ? { model_lib: AI.webllm.modelLibUrl } : {}) }],
-        };
+      await checkModelHosts(record);
+      const load = (cacheBackend) => webllm.CreateMLCEngine(AI.webllm.model, {
+        appConfig: { ...webllm.prebuiltAppConfig, model_list: [record], cacheBackend },
+        initProgressCallback: (r) => show(t("loadingModel")(Math.round((r.progress || 0) * 100))),
+      });
+      try {
+        webllmEngine = await load("cache");
+      } catch (err) {
+        // Some company PCs block the browser Cache API; IndexedDB storage often still works.
+        if (!/cache/i.test(String(err?.message || err))) throw err;
+        console.warn("Cache API failed, retrying with IndexedDB", err);
+        webllmEngine = await load("indexeddb");
       }
-      webllmEngine = await webllm.CreateMLCEngine(AI.webllm.model, engineConfig);
     } catch (err) {
       console.error(err);
       webllmEngine = null;
+      if (err.userMessage) throw err;
       throw userError(`${t("errWebllmLoad")}\n(${err.message || err})`);
     }
   }
@@ -439,6 +449,22 @@ async function webllmChat(messages, show) {
     show(out.replace(CITE, ""));
   }
   return out;
+}
+
+// Check that the two download sites answer, so we can say exactly which one the network blocks.
+async function checkModelHosts(record) {
+  const configUrl = new URL("resolve/main/mlc-chat-config.json", record.model.endsWith("/") ? record.model : record.model + "/").href;
+  const targets = [configUrl, record.model_lib];
+  const blocked = [];
+  for (const url of targets) {
+    try {
+      const res = await fetch(url, { method: url === configUrl ? "GET" : "HEAD", cache: "no-store" });
+      if (!res.ok) blocked.push(`${new URL(url).host} (HTTP ${res.status})`);
+    } catch {
+      blocked.push(new URL(url).host);
+    }
+  }
+  if (blocked.length) throw userError(t("errBlocked")(blocked.join(", ")));
 }
 
 // Ollama running on this computer (http://localhost:11434). Streams newline-delimited JSON.
