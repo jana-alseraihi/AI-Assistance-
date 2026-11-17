@@ -1,0 +1,12 @@
+name = "ecm-assistant"
+main = "src/index.js"
+compatibility_date = "2026-10-01"
+compatibility_flags = ["nodejs_compat"]
+
+[vars]
+# Comma-separated list of sites allowed to call this worker.
+# Example: "https://your-username.github.io,http://localhost:8000"
+ALLOWED_ORIGINS = "http://localhost:8000"
+
+# The API key is a secret, NOT a var. Set it with:
+#   npx wrangler secret put ANTHROPIC_API_KEY
