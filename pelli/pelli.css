@@ -1,7 +1,7 @@
-/* Pelli v1.1 (official, see CLAUDE.md) — drop-in assistant widget. All rules are scoped under .pelli so it can sit on any site.
+/* Pelli v1.2 (official, see CLAUDE.md) — drop-in assistant widget. All rules are scoped under .pelli so it can sit on any site.
    Look: SABIC light-blue frame with moving curved light lines (like the 50-years screen),
    a calm white chat area that is easy on the eyes, and Pelli floating with no background. */
-@import url("https://fonts.googleapis.com/css2?family=Readex+Pro:wght@400;500;600;700&display=swap");
+/* No external requests: the font is Readex Pro if the page already loads it, otherwise Segoe UI (Windows). */
 
 .pelli {
   --p-sky: #00a3e0;        /* SABIC light blue */
@@ -21,6 +21,11 @@
 }
 .pelli *, .pelli *::before, .pelli *::after { box-sizing: border-box; }
 .pelli button, .pelli input { font-family: inherit; }
+/* Guard against host-page styles (e.g. classic SharePoint gives every button a min-width, margin and hover colours). */
+.pelli button { min-width: 0; margin: 0; text-transform: none; letter-spacing: normal; }
+.pelli .pelli-lang, .pelli .pelli-lang:hover, .pelli .pelli-lang:focus { background: none; border: 0; font-size: inherit; padding: 0; }
+.pelli .pelli-launch, .pelli .pelli-launch:hover, .pelli .pelli-launch:focus { background: none; border: 0; }
+.pelli img { max-width: none; border: 0; }
 
 /* Floating Pelli */
 @keyframes pelli-float { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-9px) rotate(2deg); } }
@@ -125,9 +130,10 @@
 
 /* Input sits inside the white area */
 .pelli-form { display: flex; gap: 10px; padding: 12px 12px 14px; background: var(--p-paper); border-top: 1px solid var(--p-line); border-radius: 0 0 22px 22px; }
-.pelli-input { flex: 1; min-width: 0; border: 1.5px solid #bfe3f5; border-radius: 16px; padding: 12px 14px; font-size: 16px; color: var(--p-text); background: var(--p-mist); outline: 0; }
-.pelli-input::placeholder { color: #7f97ab; }
-.pelli-input:focus { border-color: var(--p-sky); background: #fff; box-shadow: 0 0 0 3px rgba(0, 163, 224, .18); }
+.pelli .pelli-input { flex: 1; min-width: 0; border: 1.5px solid #bfe3f5; border-radius: 16px; padding: 12px 14px; font-size: 16px; color: var(--p-text); background: var(--p-mist); outline: 0; }
+.pelli .pelli-input::placeholder { color: #7f97ab; }
+.pelli .pelli-input:hover { border-color: #8fd3f0; }
+.pelli .pelli-input:focus { border-color: var(--p-sky); background: #fff; box-shadow: 0 0 0 3px rgba(0, 163, 224, .18); }
 .pelli-send { width: 52px; flex: none; border: 0; border-radius: 16px; color: #fff; cursor: pointer; display: grid; place-items: center; background: linear-gradient(135deg, var(--p-ink-blue), var(--p-sky)); box-shadow: 0 4px 12px rgba(10, 111, 179, .25); }
 .pelli-send:hover { filter: brightness(1.06); }
 [dir="rtl"] .pelli-send svg { transform: scaleX(-1); }

@@ -1,5 +1,5 @@
 /*!
- * Pelli v1.1 — official Pelli code (see CLAUDE.md). Use this copy on every site.
+ * Pelli v1.2 — official Pelli code (see CLAUDE.md). Use this copy on every site.
  * Pelli — a friendly, bilingual (English / Arabic) page assistant.
  * No AI model and no server: Pelli searches the words on the page (and any documents the site
  * registers), says where the answer is, summarizes, answers the time and date, and gives
@@ -23,7 +23,9 @@
   "use strict";
 
   const SCRIPT = document.currentScript;
-  const BASE = SCRIPT && SCRIPT.src ? new URL(".", SCRIPT.src).href : "pelli/";
+  // Folder with Pelli's images. Set window.PELLI_BASE before loading this file to choose it yourself
+  // (e.g. on SharePoint). Otherwise it is the folder this script was loaded from.
+  const BASE = window.PELLI_BASE || (SCRIPT && SCRIPT.src ? new URL(".", SCRIPT.src).href : "pelli/");
   const MASCOT = BASE + "pelli.svg";        // full body (welcome card)
   const AVATAR = BASE + "pelli-avatar.svg"; // close-up for round icons
 
@@ -222,7 +224,7 @@
         </header>
         <div class="pelli-log" aria-live="polite"></div>
         <form class="pelli-form">
-          <input class="pelli-input" type="text" autocomplete="off">
+          <input class="pelli-input" autocomplete="off" enterkeyhint="send">
           <button class="pelli-send" type="submit" aria-label="Send">
             <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M7 5.2c0-1.3 1.4-2 2.4-1.3l10 7.2c.9.6.9 2 0 2.6l-10 7.2c-1 .7-2.4 0-2.4-1.3V5.2Z"/></svg>
           </button>
@@ -582,7 +584,7 @@
   }
 
   const api = {
-    version: "1.1",
+    version: "1.2",
     init, open, close, ask, setLang,
     setKnowledge(items) { knowledge = items || []; },
     get lang() { return lang; },
