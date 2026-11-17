@@ -1,197 +1,147 @@
 /* Pelli — drop-in assistant widget. All rules are scoped under .pelli so it can sit on any site.
-   Look: electric-blue gradients, glossy 3D rounded tiles with soft light and glow. Pelli stays white. */
+   Look: SABIC light-blue frame with moving curved light lines (like the 50-years screen),
+   a calm white chat area that is easy on the eyes, and Pelli floating with no background. */
 @import url("https://fonts.googleapis.com/css2?family=Readex+Pro:wght@400;500;600;700&display=swap");
 
 .pelli {
-  --p-deep: #1626b8;       /* deep royal blue */
-  --p-royal: #2340e6;      /* main blue */
-  --p-electric: #2f6bff;   /* electric blue */
-  --p-sky: #5fb4ff;        /* light glow */
-  --p-ice: #bfe3ff;        /* bright glow core */
-  --p-violet: #5b3df0;     /* violet edge */
-  --p-lavender: #dfe5ff;   /* pale tile */
-  --p-tile: #f5f7ff;       /* white tile */
-  --p-text: #121a5c;       /* ink on light tiles */
-  --p-muted: #5a63a8;
-  --p-glow: 0 0 34px rgba(95, 180, 255, .55);
-  /* 3D tile: top highlight + bottom edge + soft blue drop shadow */
-  --p-3d: inset 0 2px 0 rgba(255, 255, 255, .7), inset 0 -5px 0 rgba(20, 30, 140, .14), 0 12px 26px rgba(18, 30, 160, .35);
-  --p-3d-blue: inset 0 2px 0 rgba(255, 255, 255, .35), inset 0 -5px 0 rgba(8, 14, 90, .35), 0 12px 26px rgba(18, 30, 160, .45);
+  --p-sky: #00a3e0;        /* SABIC light blue */
+  --p-sky-2: #45c1f0;      /* lighter */
+  --p-sky-3: #bfe8f9;      /* pale */
+  --p-ink-blue: #0a6fb3;   /* readable blue for buttons and links */
+  --p-electric: #1f3fe0;   /* electric blue accent from the video */
+  --p-gold: #f6c544;       /* the gold glint on one line */
+  --p-paper: #ffffff;
+  --p-mist: #f4fafe;       /* chat background: very light, calm */
+  --p-line: #d9eef8;
+  --p-text: #15304a;       /* dark navy text, comfortable contrast */
+  --p-muted: #5d7488;
   font-family: "Readex Pro", "Segoe UI", Tahoma, sans-serif;
   color: var(--p-text);
-  line-height: 1.55;
+  line-height: 1.6;
 }
 .pelli *, .pelli *::before, .pelli *::after { box-sizing: border-box; }
 .pelli button, .pelli input { font-family: inherit; }
 
-/* Launcher: glossy blue tile "Ask Pelli" */
-.pelli-launch {
-  position: fixed; bottom: 22px; inset-inline-end: 22px; z-index: 2147483000;
-  display: flex; align-items: center; gap: 12px; padding: 7px 26px 7px 7px;
-  background: linear-gradient(145deg, var(--p-electric) 0%, var(--p-royal) 55%, var(--p-deep) 100%);
-  color: #fff; border: 0; border-radius: 26px;
-  font-size: 20px; font-weight: 700; cursor: pointer;
-  box-shadow: var(--p-3d-blue), var(--p-glow);
-  transition: transform .2s, box-shadow .2s;
-}
-[dir="rtl"] .pelli-launch, .pelli-launch[dir="rtl"] { padding: 7px 7px 7px 26px; }
-.pelli-launch:hover { transform: translateY(-3px) rotate(-1deg); box-shadow: var(--p-3d-blue), 0 0 48px rgba(95, 180, 255, .75); }
-.pelli-launch img {
-  width: 58px; height: 58px; border-radius: 18px; object-fit: contain;
-  background: radial-gradient(circle at 35% 30%, #ffffff, var(--p-lavender));
-  box-shadow: inset 0 -3px 0 rgba(20, 30, 140, .12), 0 4px 10px rgba(8, 14, 90, .3);
-}
+/* Floating Pelli */
+@keyframes pelli-float { 0%, 100% { transform: translateY(0) rotate(-2deg); } 50% { transform: translateY(-9px) rotate(2deg); } }
+@keyframes pelli-shadow { 0%, 100% { transform: scaleX(1); opacity: .35; } 50% { transform: scaleX(.75); opacity: .2; } }
 
-/* Panel: deep blue scene with a soft light glow, like the reference image */
+/* Launcher: Pelli floating on its own + a small label */
+.pelli-launch {
+  position: fixed; bottom: 18px; inset-inline-end: 18px; z-index: 2147483000;
+  display: flex; align-items: flex-end; gap: 4px; padding: 0; border: 0; background: none; cursor: pointer;
+}
+.pelli-launch img { width: 92px; height: 92px; object-fit: contain; animation: pelli-float 3.2s ease-in-out infinite; filter: drop-shadow(0 10px 12px rgba(10, 60, 120, .25)); }
+.pelli-launch span {
+  order: -1; margin-bottom: 24px; padding: 8px 16px; border-radius: 16px 16px 4px 16px;
+  background: linear-gradient(135deg, var(--p-ink-blue), var(--p-sky)); color: #fff; font-size: 16px; font-weight: 600; white-space: nowrap;
+  box-shadow: 0 8px 20px rgba(0, 120, 190, .3);
+  transition: transform .2s;
+}
+[dir="rtl"] .pelli-launch span { border-radius: 16px 16px 16px 4px; }
+.pelli-launch:hover span { transform: translateY(-2px); }
+
+/* Panel: light-blue frame around a calm white chat */
 .pelli-panel {
-  position: fixed; bottom: 110px; inset-inline-end: 22px; z-index: 2147483000;
-  width: 400px; height: min(660px, calc(100vh - 140px));
-  display: flex; flex-direction: column; overflow: hidden; border-radius: 30px;
-  background:
-    radial-gradient(120% 70% at 75% 35%, rgba(191, 227, 255, .55) 0%, rgba(95, 180, 255, .25) 30%, transparent 60%),
-    radial-gradient(90% 60% at 0% 100%, rgba(91, 61, 240, .45), transparent 60%),
-    linear-gradient(160deg, var(--p-royal) 0%, var(--p-deep) 55%, #0f1a8a 100%);
-  box-shadow: 0 30px 70px rgba(14, 22, 120, .45), 0 0 0 1px rgba(255, 255, 255, .12) inset;
+  position: fixed; bottom: 118px; inset-inline-end: 22px; z-index: 2147483000;
+  width: 400px; height: min(620px, calc(100vh - 180px));
+  display: flex; flex-direction: column; overflow: hidden; border-radius: 28px;
+  background: linear-gradient(165deg, var(--p-sky-2) 0%, var(--p-sky) 45%, #0b8fd0 100%);
+  box-shadow: 0 24px 60px rgba(0, 90, 150, .3);
+  padding: 0 8px 8px;
 }
 .pelli-panel[hidden] { display: none; }
 
-.pelli-head {
-  position: relative; display: flex; align-items: center; gap: 14px; padding: 18px 18px 16px;
-  color: #fff; overflow: hidden;
-  background: linear-gradient(180deg, rgba(255, 255, 255, .14), rgba(255, 255, 255, 0));
-  border-bottom: 1px solid rgba(255, 255, 255, .16);
+.pelli-head { position: relative; display: flex; align-items: center; gap: 12px; padding: 14px 10px 20px; color: #fff; overflow: hidden; }
+/* Dot grid in the corner, like the video */
+.pelli-head::before {
+  content: ""; position: absolute; inset: 0; pointer-events: none;
+  background-image: radial-gradient(rgba(255, 255, 255, .45) 1.2px, transparent 1.6px);
+  background-size: 10px 10px;
+  -webkit-mask-image: radial-gradient(circle at 100% 0%, #000 0, transparent 55%);
+  mask-image: radial-gradient(circle at 100% 0%, #000 0, transparent 55%);
 }
-/* Little floating 3D icon tiles in the header (chat, play, globe, share) */
-.pelli-deco { position: absolute; inset: 0; pointer-events: none; }
-.pelli-deco span {
-  position: absolute; display: grid; place-items: center; width: 34px; height: 34px; border-radius: 10px;
-  background: linear-gradient(145deg, var(--p-electric), var(--p-deep)); color: #fff; opacity: .55;
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .35), inset 0 -3px 0 rgba(8, 14, 90, .35), 0 6px 14px rgba(8, 14, 90, .35);
-}
-.pelli-deco span:nth-child(1) { top: 10px; inset-inline-end: 66px; transform: rotate(-14deg); }
-.pelli-deco span:nth-child(2) { bottom: 8px; inset-inline-end: 104px; transform: rotate(12deg); width: 26px; height: 26px; opacity: .45; }
-.pelli-deco span:nth-child(3) { top: 12px; inset-inline-end: 134px; transform: rotate(18deg); width: 22px; height: 22px; opacity: .35; background: linear-gradient(145deg, #8f7bff, var(--p-violet)); }
-.pelli-deco span:nth-child(4) { bottom: 10px; inset-inline-end: 22px; transform: rotate(-8deg); width: 22px; height: 22px; opacity: .4; }
-.pelli-deco svg { width: 58%; height: 58%; }
+[dir="rtl"] .pelli-head::before { -webkit-mask-image: radial-gradient(circle at 0% 0%, #000 0, transparent 55%); mask-image: radial-gradient(circle at 0% 0%, #000 0, transparent 55%); }
+/* Moving curved light lines */
+.pelli-lines { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.pelli-lines path { fill: none; stroke-linecap: round; }
+.pelli-lines .base { stroke: rgba(255, 255, 255, .28); stroke-width: 1.4; }
+.pelli-lines .run { stroke: #fff; stroke-width: 2.4; stroke-dasharray: 90 520; animation: pelli-run 4.5s linear infinite; filter: drop-shadow(0 0 4px rgba(255, 255, 255, .9)); }
+.pelli-lines .run.b { animation-duration: 6s; animation-delay: -2s; opacity: .8; }
+.pelli-lines .run.gold { stroke: var(--p-gold); animation-duration: 5.2s; animation-delay: -1s; filter: drop-shadow(0 0 4px rgba(246, 197, 68, .9)); }
+@keyframes pelli-run { from { stroke-dashoffset: 610; } to { stroke-dashoffset: 0; } }
 
-.pelli-head img {
-  position: relative; z-index: 1; width: 66px; height: 66px; border-radius: 20px; flex: none; object-fit: contain;
-  background: radial-gradient(circle at 35% 30%, #ffffff, var(--p-lavender));
-  box-shadow: var(--p-3d), var(--p-glow);
-}
+.pelli-head img { position: relative; z-index: 1; width: 70px; height: 70px; flex: none; object-fit: contain; animation: pelli-float 3.2s ease-in-out infinite; filter: drop-shadow(0 8px 10px rgba(0, 60, 110, .3)); }
 .pelli-head-text { position: relative; z-index: 1; flex: 1; min-width: 0; }
-.pelli-name { font-size: 23px; font-weight: 700; line-height: 1.2; text-shadow: 0 2px 12px rgba(95, 180, 255, .6); }
-.pelli-sub { font-size: 14px; color: #cfe0ff; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
-.pelli-lang { background: none; border: 0; padding: 0; color: #cfe0ff; cursor: pointer; }
-.pelli-lang[aria-pressed="true"] { color: #fff; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
-.pelli-close {
-  position: relative; z-index: 1; width: 38px; height: 38px; flex: none; border: 0; border-radius: 12px; cursor: pointer;
-  background: rgba(255, 255, 255, .14); color: #fff; font-size: 24px; line-height: 1;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .3);
-}
-.pelli-close:hover { background: rgba(255, 255, 255, .24); }
+.pelli-name { font-size: 23px; font-weight: 700; line-height: 1.2; text-shadow: 0 1px 8px rgba(0, 70, 130, .35); }
+.pelli-sub { font-size: 14px; color: #fff; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; text-shadow: 0 1px 6px rgba(0, 70, 130, .35); }
+.pelli-lang { background: none; border: 0; padding: 0; color: rgba(255, 255, 255, .85); cursor: pointer; text-shadow: inherit; }
+.pelli-lang[aria-pressed="true"] { color: #fff; font-weight: 700; text-decoration: underline; text-underline-offset: 3px; }
+.pelli-close { position: relative; z-index: 1; width: 38px; height: 38px; flex: none; border: 0; border-radius: 50%; cursor: pointer; background: rgba(255, 255, 255, .22); color: #fff; font-size: 24px; line-height: 1; }
+.pelli-close:hover { background: rgba(255, 255, 255, .34); }
 
-/* Messages */
-.pelli-log { flex: 1; overflow-y: auto; padding: 18px 16px; display: flex; flex-direction: column; gap: 16px; scrollbar-color: rgba(255, 255, 255, .35) transparent; }
-.pelli-row { display: flex; align-items: flex-end; gap: 10px; }
+/* Chat area: white, calm, easy to read */
+.pelli-log {
+  flex: 1; overflow-y: auto; padding: 18px 14px; display: flex; flex-direction: column; gap: 14px;
+  background: var(--p-mist); border-radius: 22px 22px 0 0;
+  scrollbar-color: #b9dcee transparent;
+}
+.pelli-row { display: flex; align-items: flex-end; gap: 8px; }
 .pelli-row.user { justify-content: flex-end; }
-.pelli-row .pelli-av {
-  width: 40px; height: 40px; border-radius: 13px; flex: none; object-fit: contain;
-  background: radial-gradient(circle at 35% 30%, #ffffff, var(--p-lavender));
-  box-shadow: inset 0 -3px 0 rgba(20, 30, 140, .12), 0 6px 14px rgba(8, 14, 90, .35);
-}
-.pelli-bubble { max-width: 86%; padding: 14px 16px; font-size: 15.5px; white-space: pre-wrap; overflow-wrap: anywhere; }
-.pelli-row.bot .pelli-bubble {
-  background: linear-gradient(160deg, #ffffff 0%, var(--p-tile) 60%, var(--p-lavender) 100%);
-  border-radius: 22px 22px 22px 8px; box-shadow: var(--p-3d);
-}
-[dir="rtl"] .pelli-row.bot .pelli-bubble { border-radius: 22px 22px 8px 22px; }
-.pelli-row.user .pelli-bubble {
-  color: #fff; border-radius: 22px 22px 8px 22px;
-  background: linear-gradient(145deg, #4c8dff 0%, var(--p-electric) 45%, var(--p-royal) 100%);
-  box-shadow: var(--p-3d-blue), 0 0 24px rgba(95, 180, 255, .35);
-}
-[dir="rtl"] .pelli-row.user .pelli-bubble { border-radius: 22px 22px 22px 8px; }
+.pelli-row .pelli-av { width: 38px; height: 38px; flex: none; object-fit: contain; filter: drop-shadow(0 3px 4px rgba(0, 60, 110, .2)); }
+.pelli-bubble { max-width: 86%; padding: 13px 16px; font-size: 15.5px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.pelli-row.bot .pelli-bubble { background: var(--p-paper); border: 1px solid var(--p-line); border-radius: 20px 20px 20px 6px; box-shadow: 0 2px 10px rgba(0, 90, 150, .06); }
+[dir="rtl"] .pelli-row.bot .pelli-bubble { border-radius: 20px 20px 6px 20px; }
+.pelli-row.user .pelli-bubble { background: linear-gradient(135deg, var(--p-ink-blue), #1189cf); color: #fff; border-radius: 20px 20px 6px 20px; box-shadow: 0 4px 12px rgba(10, 111, 179, .22); }
+[dir="rtl"] .pelli-row.user .pelli-bubble { border-radius: 20px 20px 20px 6px; }
 
 .pelli-welcome { text-align: start; }
-.pelli-welcome img { display: block; width: 180px; height: auto; margin: 0 auto 8px; filter: drop-shadow(0 14px 18px rgba(18, 30, 160, .28)); }
-.pelli-welcome b { display: block; font-size: 20px; margin-bottom: 4px; color: var(--p-deep); }
+.pelli-welcome img { display: block; width: 170px; height: auto; margin: 2px auto 6px; animation: pelli-float 3.2s ease-in-out infinite; filter: drop-shadow(0 14px 14px rgba(0, 60, 110, .18)); }
+.pelli-welcome b { display: block; font-size: 20px; margin-bottom: 4px; color: var(--p-ink-blue); }
 .pelli-alt { display: block; margin-top: 8px; color: var(--p-muted); font-size: 14px; }
-.pelli-where {
-  display: inline-flex; align-items: center; gap: 6px; margin-bottom: 6px; padding: 3px 11px; border-radius: 10px;
-  background: linear-gradient(145deg, #e6eeff, #d6e1ff); color: var(--p-royal); font-size: 13px; font-weight: 500; white-space: normal;
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .8);
-}
+.pelli-where { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 6px; padding: 3px 11px; border-radius: 10px; background: #e7f6fd; color: var(--p-ink-blue); font-size: 13px; font-weight: 500; white-space: normal; }
 
-/* Chips and buttons: small 3D tiles */
-.pelli-chips, .pelli-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 12px; white-space: normal; }
-.pelli-chip {
-  border: 0; border-radius: 14px; padding: 8px 15px; font-size: 14.5px; cursor: pointer; text-align: start; color: var(--p-royal); font-weight: 500;
-  background: linear-gradient(160deg, #ffffff, var(--p-lavender));
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .9), inset 0 -3px 0 rgba(20, 30, 140, .14), 0 5px 12px rgba(18, 30, 160, .18);
-  transition: transform .15s, box-shadow .15s;
-}
-.pelli-chip:hover { transform: translateY(-2px); box-shadow: inset 0 2px 0 rgba(255, 255, 255, .9), inset 0 -3px 0 rgba(20, 30, 140, .14), 0 8px 18px rgba(18, 30, 160, .28), 0 0 16px rgba(95, 180, 255, .45); }
-.pelli-btn {
-  border: 0; border-radius: 13px; padding: 8px 16px; font-size: 14px; cursor: pointer; font-weight: 600; color: #fff;
-  background: linear-gradient(145deg, #4c8dff, var(--p-electric) 45%, var(--p-royal));
-  box-shadow: inset 0 2px 0 rgba(255, 255, 255, .35), inset 0 -3px 0 rgba(8, 14, 90, .35), 0 6px 14px rgba(18, 30, 160, .35);
-  transition: transform .15s;
-}
-.pelli-btn.ghost { color: var(--p-royal); background: linear-gradient(160deg, #ffffff, var(--p-lavender)); box-shadow: inset 0 2px 0 rgba(255, 255, 255, .9), inset 0 -3px 0 rgba(20, 30, 140, .14), 0 5px 12px rgba(18, 30, 160, .18); }
-.pelli-btn:hover { transform: translateY(-2px); }
+/* Chips and buttons */
+.pelli-chips, .pelli-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; white-space: normal; }
+.pelli-chip { background: var(--p-paper); border: 1.5px solid #9fd6ef; color: var(--p-ink-blue); border-radius: 999px; padding: 7px 15px; font-size: 14.5px; font-weight: 500; cursor: pointer; text-align: start; transition: background .15s, border-color .15s; }
+.pelli-chip:hover { background: #e7f6fd; border-color: var(--p-sky); }
+.pelli-btn { border: 0; border-radius: 999px; padding: 8px 16px; font-size: 14px; font-weight: 600; cursor: pointer; color: #fff; background: linear-gradient(135deg, var(--p-ink-blue), #1189cf); box-shadow: 0 4px 10px rgba(10, 111, 179, .22); }
+.pelli-btn.ghost { color: var(--p-ink-blue); background: var(--p-paper); border: 1.5px solid #9fd6ef; box-shadow: none; }
+.pelli-btn:hover { filter: brightness(1.05); }
 
-.pelli-file {
-  display: flex; align-items: center; gap: 10px; margin-top: 10px; padding: 10px; border-radius: 16px; white-space: normal;
-  background: linear-gradient(160deg, #ffffff, #eef2ff);
-  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9), 0 4px 12px rgba(18, 30, 160, .14);
-}
-.pelli-file-icon {
-  width: 32px; height: 36px; border-radius: 9px; display: grid; place-items: center; color: #fff; font-size: 11px; font-weight: 700; flex: none;
-  background: linear-gradient(145deg, #8f9bd6, #5a63a8); box-shadow: inset 0 1px 0 rgba(255, 255, 255, .35), inset 0 -2px 0 rgba(0, 0, 0, .2);
-}
-.pelli-file-icon.docx { background: linear-gradient(145deg, #4f7fdb, #2b579a); }
-.pelli-file-icon.pdf { background: linear-gradient(145deg, #e8604f, #b3302a); }
-.pelli-file-icon.xlsx { background: linear-gradient(145deg, #34a36a, #1d6f42); }
-.pelli-file-icon.txt { background: linear-gradient(145deg, #5f9bff, var(--p-royal)); }
-.pelli-file { flex-wrap: wrap; }
+.pelli-file { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin-top: 10px; padding: 10px; border: 1px solid var(--p-line); border-radius: 16px; background: var(--p-mist); white-space: normal; }
+.pelli-file-icon { width: 30px; height: 36px; border-radius: 7px; display: grid; place-items: center; color: #fff; font-size: 11px; font-weight: 700; flex: none; background: #8a939e; }
+.pelli-file-icon.docx { background: #2b579a; } .pelli-file-icon.pdf { background: #c0392b; }
+.pelli-file-icon.xlsx { background: #1d6f42; } .pelli-file-icon.txt { background: var(--p-ink-blue); }
 .pelli-file-info { flex: 1 1 150px; min-width: 0; }
 .pelli-file .pelli-actions { flex: 1 0 100%; justify-content: flex-end; margin-top: 2px !important; }
 .pelli-file-name { font-weight: 600; font-size: 14px; overflow-wrap: anywhere; }
 .pelli-file-meta { font-size: 12px; color: var(--p-muted); }
 
 .pelli-typing { display: inline-flex; gap: 5px; }
-.pelli-typing i { width: 8px; height: 8px; border-radius: 3px; background: var(--p-electric); animation: pelli-blink 1.2s infinite; }
+.pelli-typing i { width: 8px; height: 8px; border-radius: 50%; background: var(--p-sky); animation: pelli-blink 1.2s infinite; }
 .pelli-typing i:nth-child(2) { animation-delay: .2s; } .pelli-typing i:nth-child(3) { animation-delay: .4s; }
-@keyframes pelli-blink { 0%, 80%, 100% { opacity: .25; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
+@keyframes pelli-blink { 0%, 80%, 100% { opacity: .3; transform: translateY(0); } 40% { opacity: 1; transform: translateY(-3px); } }
 
-/* Input: frosted glass bar */
-.pelli-form {
-  display: flex; gap: 10px; padding: 14px 16px 16px;
-  background: rgba(255, 255, 255, .1); border-top: 1px solid rgba(255, 255, 255, .16);
-  -webkit-backdrop-filter: blur(10px); backdrop-filter: blur(10px);
-}
-.pelli-input {
-  flex: 1; min-width: 0; border: 0; border-radius: 16px; padding: 13px 15px; font-size: 16px; color: var(--p-text); outline: 0;
-  background: linear-gradient(160deg, #ffffff, var(--p-tile));
-  box-shadow: inset 0 2px 4px rgba(18, 30, 160, .12), 0 6px 16px rgba(8, 14, 90, .25);
-}
-.pelli-input::placeholder { color: #8088c0; }
-.pelli-input:focus { box-shadow: inset 0 2px 4px rgba(18, 30, 160, .12), 0 0 0 3px rgba(191, 227, 255, .7), 0 0 26px rgba(95, 180, 255, .6); }
-.pelli-send {
-  width: 54px; flex: none; border: 0; border-radius: 16px; color: #fff; cursor: pointer; display: grid; place-items: center;
-  background: linear-gradient(145deg, #4c8dff, var(--p-electric) 45%, var(--p-royal));
-  box-shadow: var(--p-3d-blue), 0 0 20px rgba(95, 180, 255, .45);
-  transition: transform .15s;
-}
-.pelli-send:hover { transform: translateY(-2px); }
+/* Input sits inside the white area */
+.pelli-form { display: flex; gap: 10px; padding: 12px 12px 14px; background: var(--p-paper); border-top: 1px solid var(--p-line); border-radius: 0 0 22px 22px; }
+.pelli-input { flex: 1; min-width: 0; border: 1.5px solid #bfe3f5; border-radius: 16px; padding: 12px 14px; font-size: 16px; color: var(--p-text); background: var(--p-mist); outline: 0; }
+.pelli-input::placeholder { color: #7f97ab; }
+.pelli-input:focus { border-color: var(--p-sky); background: #fff; box-shadow: 0 0 0 3px rgba(0, 163, 224, .18); }
+.pelli-send { width: 52px; flex: none; border: 0; border-radius: 16px; color: #fff; cursor: pointer; display: grid; place-items: center; background: linear-gradient(135deg, var(--p-ink-blue), var(--p-sky)); box-shadow: 0 4px 12px rgba(10, 111, 179, .25); }
+.pelli-send:hover { filter: brightness(1.06); }
 [dir="rtl"] .pelli-send svg { transform: scaleX(-1); }
 
 /* Highlight on the host page when Pelli shows where something is */
-.pelli-spot { outline: 3px solid #2f6bff !important; outline-offset: 3px; background-color: #dfe9ff !important; color: #121a5c !important; box-shadow: 0 0 24px rgba(95, 180, 255, .6) !important; transition: background-color .4s; border-radius: 6px; }
+.pelli-spot { outline: 3px solid #00a3e0 !important; outline-offset: 3px; background-color: #e3f5fd !important; color: #15304a !important; box-shadow: 0 0 20px rgba(0, 163, 224, .45) !important; transition: background-color .4s; border-radius: 6px; }
+
+@media (prefers-reduced-motion: reduce) {
+  .pelli-launch img, .pelli-head img, .pelli-welcome img, .pelli-lines .run { animation: none; }
+}
 
 @media (max-width: 560px) {
   .pelli-panel { inset: auto 0 0 0; width: 100%; height: 88vh; border-radius: 26px 26px 0 0; }
-  .pelli-launch { bottom: 14px; inset-inline-end: 14px; font-size: 17px; }
-  .pelli-launch img { width: 48px; height: 48px; border-radius: 15px; }
+  .pelli-launch { bottom: 10px; inset-inline-end: 10px; }
+  .pelli-launch img { width: 76px; height: 76px; }
+  .pelli-launch span { font-size: 14px; padding: 7px 13px; margin-bottom: 20px; }
 }

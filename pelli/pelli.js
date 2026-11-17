@@ -203,12 +203,13 @@
       <button type="button" class="pelli-launch"><img alt=""><span></span></button>
       <section class="pelli-panel" role="dialog" aria-label="Pelli" hidden>
         <header class="pelli-head">
-          <div class="pelli-deco" aria-hidden="true">
-            <span><svg viewBox="0 0 24 24"><path fill="currentColor" d="M12 3c5 0 9 3.4 9 7.6s-4 7.6-9 7.6c-.9 0-1.8-.1-2.6-.3L5 20l1-3.7C4.2 15 3 12.9 3 10.6 3 6.4 7 3 12 3Z"/></svg></span>
-            <span><svg viewBox="0 0 24 24"><path fill="currentColor" d="M8 5.5c0-1.2 1.3-1.9 2.3-1.3l9 6.5c.9.6.9 2 0 2.6l-9 6.5c-1 .7-2.3-.1-2.3-1.3v-13Z"/></svg></span>
-            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c2.8 3 2.8 15 0 18M12 3c-2.8 3-2.8 15 0 18"/></svg></span>
-            <span><svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3" fill="currentColor"/><circle cx="6" cy="12" r="3" fill="currentColor"/><circle cx="18" cy="19" r="3" fill="currentColor"/><path d="M8.6 10.7l6.8-4M8.6 13.3l6.8 4" stroke="currentColor" stroke-width="2"/></svg></span>
-          </div>
+          <svg class="pelli-lines" viewBox="0 0 400 110" preserveAspectRatio="none" aria-hidden="true">
+            <path class="base" d="M-10 106 C 120 84, 290 82, 410 98"/>
+            <path class="base" d="M230 -6 C 300 26, 360 34, 410 26"/>
+            <path class="run" d="M-10 106 C 120 84, 290 82, 410 98"/>
+            <path class="run b" d="M230 -6 C 300 26, 360 34, 410 26"/>
+            <path class="run gold" d="M-10 112 C 140 94, 300 92, 410 108"/>
+          </svg>
           <img alt="">
           <div class="pelli-head-text">
             <div class="pelli-name">Pelli</div>
@@ -237,7 +238,8 @@
       sub: root.querySelector(".pelli-sub-text"),
       close: root.querySelector(".pelli-close"),
     };
-    root.querySelectorAll("img").forEach((img) => (img.src = AVATAR)); // launcher + header
+    root.querySelector(".pelli-launch img").src = MASCOT; // full body, floating
+    root.querySelector(".pelli-head img").src = AVATAR;  // close-up
     el.launch.addEventListener("click", () => (el.panel.hidden ? open() : close()));
     el.close.addEventListener("click", close);
     root.querySelectorAll(".pelli-lang").forEach((b) => b.addEventListener("click", () => {
