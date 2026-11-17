@@ -1,0 +1,110 @@
+/* Pelli — drop-in assistant widget. All rules are scoped under .pelli so it can sit on any site. */
+@import url("https://fonts.googleapis.com/css2?family=Readex+Pro:wght@400;500;600;700&display=swap");
+
+.pelli {
+  --p-navy: #13294b;
+  --p-yellow: #f5b800;
+  --p-blue: #2f86c8;
+  --p-blue-dark: #1f6fae;
+  --p-bg: #f3f7fc;
+  --p-card: #ffffff;
+  --p-border: #dde6f1;
+  --p-text: #13294b;
+  --p-muted: #5b6b82;
+  --p-hl: #fff3c4;
+  --p-shadow: 0 18px 50px rgba(19, 41, 75, .22);
+  font-family: "Readex Pro", "Segoe UI", Tahoma, sans-serif;
+  color: var(--p-text);
+  line-height: 1.55;
+}
+.pelli *, .pelli *::before, .pelli *::after { box-sizing: border-box; }
+.pelli button, .pelli input { font-family: inherit; }
+
+/* Launcher: "Ask Pelli" pill */
+.pelli-launch {
+  position: fixed; bottom: 22px; inset-inline-end: 22px; z-index: 2147483000;
+  display: flex; align-items: center; gap: 12px; padding: 6px 26px 6px 6px;
+  background: var(--p-navy); color: #fff; border: 4px solid var(--p-yellow); border-radius: 999px;
+  font-size: 20px; font-weight: 700; cursor: pointer; box-shadow: var(--p-shadow);
+  transition: transform .15s;
+}
+[dir="rtl"] .pelli-launch, .pelli-launch[dir="rtl"] { padding: 6px 6px 6px 26px; }
+.pelli-launch:hover { transform: translateY(-2px); }
+.pelli-launch img { width: 58px; height: 58px; border-radius: 50%; background: #eaf2fb; object-fit: contain; }
+.pelli-launch.compact { padding: 4px; font-size: 0; gap: 0; }
+.pelli-launch.compact span { display: none; }
+
+/* Panel */
+.pelli-panel {
+  position: fixed; bottom: 108px; inset-inline-end: 22px; z-index: 2147483000;
+  width: 400px; height: min(640px, calc(100vh - 140px));
+  display: flex; flex-direction: column; overflow: hidden;
+  background: var(--p-bg); border-radius: 26px; box-shadow: var(--p-shadow);
+}
+.pelli-panel[hidden] { display: none; }
+.pelli-head {
+  position: relative; display: flex; align-items: center; gap: 14px; padding: 16px 18px;
+  background: var(--p-navy); color: #fff; border-bottom: 5px solid var(--p-yellow);
+}
+.pelli-head::after { /* faint molecule chain like the original header */
+  content: ""; position: absolute; inset: 0; pointer-events: none; opacity: .18;
+  background-image: radial-gradient(circle at 10px 10px, #9fb6d8 3px, transparent 4px);
+  background-size: 40px 40px; background-position: 0 14px;
+}
+.pelli-head img { position: relative; z-index: 1; width: 64px; height: 64px; border-radius: 50%; background: #eaf2fb; border: 4px solid var(--p-yellow); object-fit: contain; flex: none; }
+.pelli-head-text { position: relative; z-index: 1; flex: 1; min-width: 0; }
+.pelli-name { font-size: 22px; font-weight: 700; line-height: 1.2; }
+.pelli-sub { font-size: 14px; color: #d4deec; display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.pelli-lang { background: none; border: 0; padding: 0; color: #d4deec; cursor: pointer; }
+.pelli-lang[aria-pressed="true"] { color: #fff; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+.pelli-close { position: relative; z-index: 1; background: none; border: 0; color: #fff; font-size: 26px; line-height: 1; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; flex: none; }
+.pelli-close:hover { background: rgba(255, 255, 255, .12); }
+
+/* Messages */
+.pelli-log { flex: 1; overflow-y: auto; padding: 18px 16px; display: flex; flex-direction: column; gap: 14px; }
+.pelli-row { display: flex; align-items: flex-end; gap: 10px; }
+.pelli-row.user { justify-content: flex-end; }
+.pelli-row .pelli-av { width: 40px; height: 40px; border-radius: 50%; background: #eaf2fb; border: 1px solid var(--p-border); flex: none; object-fit: contain; }
+.pelli-bubble { max-width: 86%; padding: 14px 16px; border-radius: 20px; font-size: 15.5px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.pelli-row.bot .pelli-bubble { background: var(--p-card); border: 1px solid var(--p-border); box-shadow: 0 2px 8px rgba(19, 41, 75, .05); }
+.pelli-row.user .pelli-bubble { background: var(--p-blue); color: #fff; border-radius: 20px; }
+.pelli-welcome { text-align: start; }
+.pelli-welcome img { display: block; width: 150px; height: auto; margin: 4px auto 8px; }
+.pelli-welcome b { display: block; font-size: 19px; margin-bottom: 4px; }
+.pelli-alt { display: block; margin-top: 8px; color: var(--p-muted); font-size: 14px; }
+.pelli-where { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 6px; padding: 2px 10px; border-radius: 999px; background: #e8f1fb; color: var(--p-blue-dark); font-size: 13px; font-weight: 500; white-space: normal; }
+.pelli-chips, .pelli-actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 12px; white-space: normal; }
+.pelli-chip { background: var(--p-card); border: 2px solid var(--p-blue); color: var(--p-text); border-radius: 999px; padding: 7px 16px; font-size: 15px; cursor: pointer; text-align: start; }
+.pelli-chip:hover { background: #e8f1fb; }
+.pelli-btn { border: 0; background: var(--p-blue); color: #fff; border-radius: 999px; padding: 7px 16px; font-size: 14px; cursor: pointer; font-weight: 500; }
+.pelli-btn.ghost { background: var(--p-card); color: var(--p-blue-dark); border: 2px solid var(--p-blue); }
+.pelli-btn:hover { filter: brightness(.95); }
+.pelli-file { display: flex; align-items: center; gap: 10px; margin-top: 10px; padding: 10px; border: 1px solid var(--p-border); border-radius: 14px; background: var(--p-bg); white-space: normal; }
+.pelli-file-icon { width: 28px; height: 34px; border-radius: 5px; display: grid; place-items: center; color: #fff; font-size: 11px; font-weight: 700; flex: none; background: #8a939e; }
+.pelli-file-icon.docx { background: #2b579a; } .pelli-file-icon.pdf { background: #c0392b; }
+.pelli-file-icon.xlsx { background: #1d6f42; } .pelli-file-icon.txt { background: #3b6fc4; }
+.pelli-file-info { flex: 1; min-width: 0; }
+.pelli-file-name { font-weight: 600; font-size: 14px; overflow-wrap: anywhere; }
+.pelli-file-meta { font-size: 12px; color: var(--p-muted); }
+.pelli-typing { display: inline-flex; gap: 5px; }
+.pelli-typing i { width: 7px; height: 7px; border-radius: 50%; background: var(--p-muted); animation: pelli-blink 1.2s infinite; }
+.pelli-typing i:nth-child(2) { animation-delay: .2s; } .pelli-typing i:nth-child(3) { animation-delay: .4s; }
+@keyframes pelli-blink { 0%, 80%, 100% { opacity: .25; } 40% { opacity: 1; } }
+
+/* Input */
+.pelli-form { display: flex; gap: 10px; padding: 14px 16px; background: var(--p-card); border-top: 1px solid var(--p-border); }
+.pelli-input { flex: 1; min-width: 0; border: 2px solid var(--p-blue); border-radius: 14px; padding: 12px 14px; font-size: 16px; color: var(--p-text); background: #fff; outline: 0; }
+.pelli-input::placeholder { color: #7a879a; }
+.pelli-input:focus { border-color: var(--p-blue-dark); box-shadow: 0 0 0 3px rgba(47, 134, 200, .15); }
+.pelli-send { width: 56px; flex: none; border: 0; border-radius: 14px; background: var(--p-blue); color: #fff; cursor: pointer; display: grid; place-items: center; }
+.pelli-send:hover { background: var(--p-blue-dark); }
+[dir="rtl"] .pelli-send svg { transform: scaleX(-1); }
+
+/* Highlight on the host page when Pelli shows where something is */
+.pelli-spot { outline: 3px solid var(--p-yellow, #f5b800) !important; outline-offset: 3px; background-color: #fff3c4 !important; color: #13294b !important; transition: background-color .4s; border-radius: 4px; }
+
+@media (max-width: 560px) {
+  .pelli-panel { inset: auto 0 0 0; width: 100%; height: 88vh; border-radius: 22px 22px 0 0; }
+  .pelli-launch { bottom: 14px; inset-inline-end: 14px; font-size: 17px; }
+  .pelli-launch img { width: 48px; height: 48px; }
+}

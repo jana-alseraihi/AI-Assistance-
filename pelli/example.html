@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en" dir="ltr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Co-op Program Guide</title>
+<style>
+  :root { --bg: #f6f8fb; --text: #1b2433; --muted: #5b6676; --card: #fff; --border: #e1e6ee; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) { --bg: #12161c; --text: #e7eaee; --muted: #a0a9b6; --card: #1a2028; --border: #2c343f; } }
+  :root[data-theme="dark"] { --bg: #12161c; --text: #e7eaee; --muted: #a0a9b6; --card: #1a2028; --border: #2c343f; }
+  body { margin: 0; background: var(--bg); color: var(--text); font: 16px/1.6 "Segoe UI", Tahoma, sans-serif; }
+  main { max-width: 760px; margin: 0 auto; padding: 32px 16px 140px; }
+  section { background: var(--card); border: 1px solid var(--border); border-radius: 12px; padding: 4px 20px 12px; margin: 16px 0; }
+  .muted { color: var(--muted); }
+</style>
+<link rel="stylesheet" href="pelli.css">
+</head>
+<body>
+<main>
+  <h1>Co-op Program Guide</h1>
+  <p class="muted" data-pelli-ignore>Example page: Pelli searches everything on this page. Try “where is the dress code?”, “what time is the break?”, or “summarize this page”.</p>
+
+  <section>
+    <h2>Working hours</h2>
+    <p>The working day starts at 7:00 AM and ends at 3:30 PM, Sunday to Thursday.</p>
+    <p>The lunch break is from 12:00 to 12:45 in the main cafeteria.</p>
+  </section>
+
+  <section>
+    <h2>Email and accounts</h2>
+    <p>To activate your email, sign in on any company PC with the temporary password from IT, then set a new password.</p>
+    <p>If your account is locked, call the IT Service Desk at extension 4357.</p>
+  </section>
+
+  <section>
+    <h2>Dress code</h2>
+    <ul>
+      <li>Office areas: business casual.</li>
+      <li>Plant areas: coveralls, safety shoes, helmet, and safety glasses.</li>
+    </ul>
+  </section>
+
+  <section>
+    <h2>Your weekly report</h2>
+    <p>Send a short weekly report to your supervisor every Thursday before 1:00 PM: what you did, what you learned, and any blockers.</p>
+  </section>
+</main>
+
+<script src="pelli.js"></script>
+<script>
+  Pelli.init({
+    subtitle: { en: "Your co-op buddy", ar: "رفيقك في التدريب" },
+    suggestions: {
+      en: ["What time is the break?", "How do I activate my email?", "Where is the dress code?", "Give me a tip"],
+      ar: ["متى البريك؟", "كيف أفعّل الإيميل؟", "عطني نصيحة", "كم الساعة؟"],
+    },
+  });
+</script>
+</body>
+</html>
