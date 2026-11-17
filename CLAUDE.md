@@ -2,7 +2,7 @@
 
 ## Pelli is the official assistant — `pelli/` is the source of truth
 
-The folder `pelli/` is **Pelli's official code (v1.2)**. Use it as-is whenever Pelli is added to another site, and keep every site on this same copy.
+The folder `pelli/` is **Pelli's official code (v1.3)**. Use it as-is whenever Pelli is added to another site, and keep every site on this same copy.
 
 | File | What it is |
 |---|---|
@@ -12,7 +12,7 @@ The folder `pelli/` is **Pelli's official code (v1.2)**. Use it as-is whenever P
 | `pelli/pelli-avatar.svg` | Close-up of Pelli for small icons |
 | `pelli/pelli.png` | 512px transparent PNG of Pelli |
 | `pelli/example.html` | How to add Pelli to any page |
-| `sharepoint/` | Loader and guide for classic SharePoint (Content Editor web part) |
+| `sharepoint/` | Classic SharePoint: `pelli-sharepoint.txt` is ONE file (code + style + pictures) for a Content Editor web part. Rebuild it with `python3 sharepoint/build.py` after any change in `pelli/` |
 
 Rules for changes:
 - Pelli stays **white**, with a **plain yellow hard hat** (no logo on the hat).

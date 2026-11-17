@@ -1,5 +1,5 @@
 /*!
- * Pelli v1.2 — official Pelli code (see CLAUDE.md). Use this copy on every site.
+ * Pelli v1.3 — official Pelli code (see CLAUDE.md). Use this copy on every site.
  * Pelli — a friendly, bilingual (English / Arabic) page assistant.
  * No AI model and no server: Pelli searches the words on the page (and any documents the site
  * registers), says where the answer is, summarizes, answers the time and date, and gives
@@ -26,8 +26,11 @@
   // Folder with Pelli's images. Set window.PELLI_BASE before loading this file to choose it yourself
   // (e.g. on SharePoint). Otherwise it is the folder this script was loaded from.
   const BASE = window.PELLI_BASE || (SCRIPT && SCRIPT.src ? new URL(".", SCRIPT.src).href : "pelli/");
-  const MASCOT = BASE + "pelli.svg";        // full body (welcome card)
-  const AVATAR = BASE + "pelli-avatar.svg"; // close-up for round icons
+  // Pictures can also be passed in directly (window.PELLI_IMAGES = { mascot, avatar }), e.g. by the
+  // single-file SharePoint build, so no image files are needed.
+  const IMAGES = window.PELLI_IMAGES || {};
+  const MASCOT = IMAGES.mascot || BASE + "pelli.svg";        // full body (welcome card)
+  const AVATAR = IMAGES.avatar || BASE + "pelli-avatar.svg"; // close-up for round icons
 
   /* ---------------------------------------------------------------- text */
   const T = {
@@ -584,7 +587,7 @@
   }
 
   const api = {
-    version: "1.2",
+    version: "1.3",
     init, open, close, ask, setLang,
     setKnowledge(items) { knowledge = items || []; },
     get lang() { return lang; },

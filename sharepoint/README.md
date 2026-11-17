@@ -1,50 +1,36 @@
 # بيلي في شيربوينت (الكلاسيك) | Pelli on classic SharePoint
 
-Pelli runs from your own SharePoint site. Nothing connects to GitHub or any outside site, and no admin or app install is needed.
-بيلي يشتغل من موقع الشيربوينت حقك نفسه. ما فيه أي ارتباط بـ GitHub أو أي موقع خارجي، وما تحتاج أدمن ولا تثبيت تطبيق.
+**ملف واحد فقط: `pelli-sharepoint.txt`**. فيه كود بيلي وشكله وصوره. ما فيه ملفات `.js` ولا `.css`، وما يرتبط بـ GitHub أو أي موقع خارجي، وما تحتاج أدمن.
 
-## الملفات | Files (in `Pelli-SharePoint.zip`)
-
-| File | |
-|---|---|
-| `pelli.js` | Pelli's code |
-| `pelli.css` | Pelli's look |
-| `pelli.svg`, `pelli-avatar.svg` | Pelli's pictures |
-| `pelli-sharepoint.html` | The small loader the web part points to |
+**One file only: `pelli-sharepoint.txt`**: Pelli's code, look and pictures inside one text file. No `.js` or `.css` files, no link to GitHub or any outside site, no admin needed.
 
 ## الخطوات | Steps
 
-1. **ارفع الملفات** | Upload the files
-   - Open your site → **Site Contents** → **Site Assets**.
-   - Create a folder named **`Pelli`** (exactly this name).
-   - Upload the 5 files into it.
+1. **ارفع الملف** | Upload the file
+   - Open your site → **Site Contents** → **Site Assets** → upload `pelli-sharepoint.txt`.
 
-2. **انسخ رابط الملف** | Copy the loader's address
-   - In the `Pelli` folder, click the `...` next to `pelli-sharepoint.html` and copy its link.
-   - Keep only the part that starts with `/sites/...`, for example:
-     `/sites/YourSite/SiteAssets/Pelli/pelli-sharepoint.html`
+2. **انسخ رابطه** | Copy its address
+   - Click `...` next to the file and copy the link. Keep the part that starts with `/sites/...`:
+     `/sites/YourSite/SiteAssets/pelli-sharepoint.txt`
 
 3. **أضف بيلي للصفحة** | Add Pelli to the page
-   - Open your page → **Edit** (or **Page → Edit Page**).
+   - Open the page → **Page → Edit Page**.
    - **Add a Web Part → Media and Content → Content Editor → Add**.
-   - Open the web part menu ▾ → **Edit Web Part**.
-   - In **Content Link**, paste the address from step 2 → **OK**.
-   - Optional: **Appearance → Chrome Type → None** (hides the empty web part title).
-   - **Save** / **Stop Editing**.
+   - Web part menu ▾ → **Edit Web Part** → **Content Link**: paste the address → **OK**.
+   - Optional: **Appearance → Chrome Type → None**.
+   - **Stop Editing**.
 
-بيلي يطلع الحين يطفو في زاوية الصفحة. To add Pelli to more pages, repeat step 3 on each page (the files stay in one place).
+بيلي يطلع يطفو في زاوية الصفحة. لصفحات ثانية، كرر الخطوة 3 بنفس الرابط.
 
 ## إذا ما ظهر بيلي | If Pelli doesn't appear
 
-- **The folder name:** it must be `Site Assets/Pelli`. If you used another folder, change this line in `pelli-sharepoint.html`:
-  `var folder = site.replace(/\/$/, "") + "/SiteAssets/Pelli/";`
-  to your folder, for example `var folder = "/sites/YourSite/Shared Documents/Pelli/";`
 - **Edge "IE mode":** if you see the Internet Explorer icon in the address bar, Pelli can't run in that mode. Open the page in normal Edge or Chrome.
-- **Scripts not allowed:** if the Content Editor web part removes scripts on your site, ask the site owner to check that custom scripts are allowed for the site.
+- **Scripts removed:** if the Content Editor removes scripts on your site, ask the site owner to allow custom scripts.
+- **Wrong link:** open the link from step 2 in the browser. You should see the file's text. If not, the link is wrong.
 
 ## ملاحظات | Notes
 
-- Pelli searches the **page content** only (not the SharePoint ribbon or menus).
-- Pelli searches with the same words as the page: on an English page, ask in English; on an Arabic page, ask in Arabic. Time, date, tips and greetings work in both languages everywhere.
-- To change the subtitle or the suggested questions, edit the `settings` part at the top of `pelli-sharepoint.html`.
-- To update Pelli later, upload the new `pelli.js` / `pelli.css` over the old ones. Every page that uses it updates.
+- Pelli searches the **page content** only (not the ribbon or menus), using the page's own words: on an English page ask in English, on an Arabic page ask in Arabic. Time, date, tips and greetings work in both languages everywhere.
+- To change the subtitle or suggested questions, edit the `settings` part near the end of the file (Notepad is enough).
+- To update Pelli, upload the new `pelli-sharepoint.txt` over the old one. Every page using it updates.
+- For developers: the file is generated from `pelli/` with `python3 sharepoint/build.py`.
