@@ -69,7 +69,7 @@
 .pelli-row.bot .pelli-bubble { background: var(--p-card); border: 1px solid var(--p-border); box-shadow: 0 2px 8px rgba(19, 41, 75, .05); }
 .pelli-row.user .pelli-bubble { background: var(--p-blue); color: #fff; border-radius: 20px; }
 .pelli-welcome { text-align: start; }
-.pelli-welcome img { display: block; width: 150px; height: auto; margin: 4px auto 8px; }
+.pelli-welcome img { display: block; width: 180px; height: auto; margin: 4px auto 8px; }
 .pelli-welcome b { display: block; font-size: 19px; margin-bottom: 4px; }
 .pelli-alt { display: block; margin-top: 8px; color: var(--p-muted); font-size: 14px; }
 .pelli-where { display: inline-flex; align-items: center; gap: 6px; margin-bottom: 6px; padding: 2px 10px; border-radius: 999px; background: #e8f1fb; color: var(--p-blue-dark); font-size: 13px; font-weight: 500; white-space: normal; }

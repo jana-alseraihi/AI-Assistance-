@@ -23,7 +23,8 @@
 
   const SCRIPT = document.currentScript;
   const BASE = SCRIPT && SCRIPT.src ? new URL(".", SCRIPT.src).href : "pelli/";
-  const MASCOT = BASE + "pelli.png";
+  const MASCOT = BASE + "pelli.svg";        // full body (welcome card)
+  const AVATAR = BASE + "pelli-avatar.svg"; // close-up for round icons
 
   /* ---------------------------------------------------------------- text */
   const T = {
@@ -230,7 +231,7 @@
       sub: root.querySelector(".pelli-sub-text"),
       close: root.querySelector(".pelli-close"),
     };
-    root.querySelectorAll("img").forEach((img) => (img.src = MASCOT));
+    root.querySelectorAll("img").forEach((img) => (img.src = AVATAR));
     el.launch.addEventListener("click", () => (el.panel.hidden ? open() : close()));
     el.close.addEventListener("click", close);
     root.querySelectorAll(".pelli-lang").forEach((b) => b.addEventListener("click", () => {
@@ -291,7 +292,7 @@
 
   function addBot(ans) {
     const row = h("div", "pelli-row bot");
-    const av = h("img", "pelli-av"); av.src = MASCOT; av.alt = "";
+    const av = h("img", "pelli-av"); av.src = AVATAR; av.alt = "";
     const bubble = h("div", "pelli-bubble");
     if (ans.where) bubble.appendChild(h("div", "pelli-where", ans.where));
     if (ans.where) bubble.appendChild(document.createElement("br"));
@@ -536,7 +537,7 @@
     open();
     addUser(question);
     const row = h("div", "pelli-row bot");
-    const av = h("img", "pelli-av"); av.src = MASCOT; av.alt = "";
+    const av = h("img", "pelli-av"); av.src = AVATAR; av.alt = "";
     const b = h("div", "pelli-bubble"); b.innerHTML = '<span class="pelli-typing"><i></i><i></i><i></i></span>';
     row.append(av, b);
     el.log.appendChild(row);
