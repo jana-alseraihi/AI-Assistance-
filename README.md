@@ -68,6 +68,16 @@ The badge at the top of the page changes from "Demo mode" to "AI connected".
 
 Add entries to `documents.js`. Both the demo search and the AI use this file. In a real ECM, this file would be replaced by the ECM system's API (for example, search the repository, then send the top documents to Claude).
 
+## الشعار | Logo
+
+ضعي ملف الشعار الرسمي في `assets/logo.png` ويظهر تلقائيًا أعلى الصفحة.
+Put the official logo at `assets/logo.png` and it appears in the top corner automatically.
+
+## ملاحظة عن محتوى الوثائق | About the document content
+
+ملفات مجلد «In Boarding Logbook» أسماؤها مثل الموقع، لكن محتواها نصوص تجريبية للعرض فقط. استبدليها بالمحتوى الحقيقي قبل أي استخدام فعلي.
+The onboarding folder uses the real file names, but the text inside each document is sample content written for the demo. Replace it with the real content before any real use.
+
 ## الملفات | Files
 
 | File | Purpose |
@@ -76,6 +86,7 @@ Add entries to `documents.js`. Both the demo search and the AI use this file. In
 | `documents.js` | Sample document library (shared with the Worker) |
 | `config.js` | Worker URL (empty = demo mode) |
 | `worker/` | Cloudflare Worker that calls Claude |
+| `assets/` | Put the company logo here |
 
 ## ملاحظة عن الاستضافة | Hosting note
 

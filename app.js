@@ -5,8 +5,8 @@ import { API_URL } from "./config.js";
 const T = {
   en: {
     brandSub: "Enterprise Content Management",
-    crumbHome: "Enterprise",
-    crumbArchive: "Company Documents",
+    crumbHome: "Workforce Development",
+    crumbArchive: "Department Archive",
     colName: "Name",
     colSize: "Size",
     colModified: "Modified",
@@ -24,7 +24,7 @@ const T = {
     updated: "Updated",
     owner: "Owner",
     noDocs: "No documents match your search.",
-    welcome: "Hi! I'm your document assistant. Ask me about policies, contracts, invoices, or procedures, and I'll answer from the documents and show you the source.",
+    welcome: "Hi! I'm your document assistant. Ask me about onboarding, forms, policies, or contracts, and I'll answer from the documents and show you the source.",
     notFound: "I couldn't find that in the documents. Try different words, or open the library to browse.",
     fromDoc: (t) => `From “${t}”:`,
     summaryOf: (t) => `Summary of “${t}”:`,
@@ -33,8 +33,11 @@ const T = {
     askAboutPrompt: (id) => `Summarize document ${id}`,
     error: "Sorry, the assistant couldn't be reached. Please try again.",
     suggestions: [
+      "What are the onboarding steps?",
+      "How do I get an ID badge?",
+      "How do I request safety shoes?",
+      "What do I need for a vehicle permit?",
       "When does the IT support contract end?",
-      "How long do we keep financial records?",
       "Can I work from home?",
       "What approvals do I need to buy something for SAR 30,000?",
       "Is invoice INV-88412 paid?",
@@ -43,8 +46,8 @@ const T = {
   },
   ar: {
     brandSub: "نظام إدارة المحتوى المؤسسي",
-    crumbHome: "المؤسسة",
-    crumbArchive: "وثائق الشركة",
+    crumbHome: "تطوير القوى العاملة",
+    crumbArchive: "أرشيف الإدارة",
     colName: "الاسم",
     colSize: "الحجم",
     colModified: "آخر تعديل",
@@ -62,7 +65,7 @@ const T = {
     updated: "آخر تحديث",
     owner: "المالك",
     noDocs: "لا توجد وثائق مطابقة لبحثك.",
-    welcome: "أهلًا! أنا مساعد الوثائق. اسألني عن السياسات أو العقود أو الفواتير أو الإجراءات، وأجاوبك من الوثائق مع ذكر المصدر.",
+    welcome: "أهلًا! أنا مساعد الوثائق. اسألني عن الاستقبال أو النماذج أو السياسات أو العقود، وأجاوبك من الوثائق مع ذكر المصدر.",
     notFound: "ما لقيت إجابة في الوثائق. جرّب كلمات ثانية، أو تصفح المكتبة.",
     fromDoc: (t) => `من «${t}»:`,
     summaryOf: (t) => `ملخص «${t}»:`,
@@ -71,8 +74,11 @@ const T = {
     askAboutPrompt: (id) => `لخص الوثيقة ${id}`,
     error: "عذرًا، تعذر الوصول إلى المساعد. حاول مرة أخرى.",
     suggestions: [
+      "وش مراحل الاستقبال؟",
+      "كيف أطلع بطاقة الهوية؟",
+      "كيف أطلب جزمة السلامة؟",
+      "وش أحتاج لتصريح السيارة؟",
       "متى ينتهي عقد الدعم الفني؟",
-      "كم مدة الاحتفاظ بالسجلات المالية؟",
       "هل أقدر أشتغل من البيت؟",
       "وش الموافقات المطلوبة لشراء بقيمة 30 ألف ريال؟",
       "هل تم سداد الفاتورة INV-88412؟",
@@ -84,7 +90,7 @@ const T = {
 /* ---------------- State ---------------- */
 let lang = "en";
 try { lang = localStorage.getItem("ecm-lang") || "en"; } catch {}
-let activeCategory = "all";
+let activeCategory = "onboarding";
 let history = []; // [{role, content}] sent to the AI backend
 let currentDoc = null;
 const LIVE = Boolean(API_URL);
@@ -136,6 +142,8 @@ $("categorySelect").addEventListener("change", (e) => {
   renderDocs();
 });
 
+const FILE_LABEL = { pdf: "PDF", xlsx: "X", docx: "W", oft: "✉", txt: "≡" };
+
 function formatDate(iso) {
   const [y, m, d] = iso.split("-");
   return ltr(`${m}/${d}/${y}`);
@@ -158,7 +166,7 @@ function renderDocs() {
     tr.tabIndex = 0;
     tr.innerHTML = `
       <td class="c-check"><span class="checkbox" aria-hidden="true"></span></td>
-      <td class="c-icon"><span class="file-icon ${d.file}">${d.file === "pdf" ? "PDF" : d.file === "xlsx" ? "X" : "W"}</span></td>
+      <td class="c-icon"><span class="file-icon ${d.file}">${FILE_LABEL[d.file] || ""}</span></td>
       <td class="c-name"><span class="doc-name"></span><span class="tag ${d.classification}"></span><span class="doc-sub"></span></td>
       <td class="c-size"></td>
       <td class="c-date"></td>
@@ -308,7 +316,7 @@ async function askAI(text) {
 const STOP = new Set(("the a an is are was were do does did i we you it of to in on for and or what when how which who can could should "
   + "my our me about this that with be have has any there much many long need tell please is will "
   + "في من على عن الى إلى ما ماذا متى كيف هل هو هي انا أنا وش ايش كم مع او أو ان أن هذا هذه التي الذي لي عندي ابغى ابي اقدر أقدر").split(" "));
-const SUMMARY_WORDS = ["summarize", "summary", "summarise", "overview", "لخص", "ملخص", "تلخيص", "نبذه"];
+const SUMMARY_WORDS = ["summarize", "summary", "summarise", "overview", "steps", "لخص", "ملخص", "تلخيص", "نبذه", "مراحل", "خطوات"];
 const LIST_WORDS = ["documents", "list", "الوثائق", "المستندات", "قائمه"];
 const GREET_WORDS = ["hi", "hello", "hey", "مرحبا", "السلام", "هلا", "اهلا"];
 

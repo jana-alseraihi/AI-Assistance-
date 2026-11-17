@@ -93,6 +93,10 @@ button, input, textarea, select { font: inherit; color: inherit; }
 .file-icon.docx { background: #2b579a; }
 .file-icon.pdf { background: #c0392b; }
 .file-icon.xlsx { background: #1d6f42; }
+.file-icon.oft { background: #8a939e; font-size: 13px; }
+.file-icon.txt { background: #3b6fc4; font-size: 14px; }
+.company-logo { height: 40px; width: auto; display: block; }
+.company-logo[hidden] { display: none; }
 .doc-name { color: var(--text); }
 .doc-sub { display: block; font-size: 12px; color: var(--muted); }
 .tag { font-size: 11px; padding: 1px 7px; border-radius: 3px; background: var(--surface-2); color: var(--muted); margin-inline-start: 8px; vertical-align: 1px; }
