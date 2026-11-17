@@ -3,43 +3,67 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>ECM Portal — AI Assistant</title>
+<title>ECM Assistant</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Lato:wght@300;400;700&family=Noto+Sans+Arabic:wght@300;400;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
   <header class="topbar">
     <div class="brand">
-      <span class="logo" aria-hidden="true">
-        <svg viewBox="0 0 24 24" width="20" height="20"><path fill="currentColor" d="M6 2h8l6 6v12a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2Zm7 1.5V9h5.5L13 3.5Z"/></svg>
-      </span>
-      <span data-i18n="brand">ECM Portal</span>
+      <div class="brand-name">ECM</div>
+      <div class="brand-sub" data-i18n="brandSub">Enterprise Content Management</div>
+    </div>
+    <div class="top-tools">
+      <button class="round-btn" type="button" aria-label="Help">?</button>
+      <button class="round-btn plain" type="button" aria-label="Home">
+        <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M12 3 2 12h3v8h5v-6h4v6h5v-8h3L12 3Z"/></svg>
+      </button>
     </div>
     <div class="topbar-actions">
+      <label class="search">
+        <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M10 2a8 8 0 0 1 6.32 12.9l5.39 5.4-1.41 1.4-5.4-5.39A8 8 0 1 1 10 2Zm0 2a6 6 0 1 0 0 12 6 6 0 0 0 0-12Z"/></svg>
+        <input id="searchInput" type="search" data-i18n-placeholder="searchPlaceholder" placeholder="Search documents">
+      </label>
       <span class="mode-badge" id="modeBadge"></span>
-      <button class="ghost-btn" id="langBtn" type="button">العربية</button>
+      <button class="lang-btn" id="langBtn" type="button">العربية</button>
+      <span class="avatar" aria-hidden="true">JA</span>
     </div>
   </header>
 
-  <div class="layout">
-    <nav class="sidebar" id="categoryNav" aria-label="Categories"></nav>
+  <nav class="breadcrumb" aria-label="Breadcrumb">
+    <span data-i18n="crumbHome">Enterprise</span><span class="sep">/</span>
+    <span data-i18n="crumbArchive">Company Documents</span><span class="sep">/</span>
+    <strong id="crumbCurrent"></strong>
+  </nav>
 
-    <main class="main">
-      <div class="main-head">
-        <div>
-          <h1 data-i18n="libraryTitle">Document library</h1>
-          <p class="muted" data-i18n="librarySub">Browse documents, or ask the assistant.</p>
-        </div>
-        <label class="search">
-          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="currentColor" d="M10 2a8 8 0 0 1 6.32 12.9l5.39 5.4-1.41 1.4-5.4-5.39A8 8 0 1 1 10 2Zm0 2a6 6 0 1 0 0 12 6 6 0 0 0 0-12Z"/></svg>
-          <input id="searchInput" type="search" data-i18n-placeholder="searchPlaceholder" placeholder="Search documents">
-        </label>
-      </div>
-      <div class="doc-grid" id="docGrid"></div>
-    </main>
-  </div>
+  <main class="main">
+    <div class="folder-bar">
+      <svg class="filter-icon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path fill="currentColor" d="M3 4h18l-7 8.5V19l-4 2v-8.5L3 4Z"/></svg>
+      <label class="folder-title">
+        <svg viewBox="0 0 24 24" width="30" height="30" aria-hidden="true"><path fill="#e8913a" d="M3 6a2 2 0 0 1 2-2h4.5l2 2H19a2 2 0 0 1 2 2v1H3V6Z"/><path fill="#f5a94a" d="M3 9h18v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V9Z"/></svg>
+        <select id="categorySelect" aria-label="Folder"></select>
+        <svg class="chev" viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M7 9l5 5 5-5H7Z"/></svg>
+      </label>
+      <span></span>
+    </div>
+
+    <table class="doc-table">
+      <thead>
+        <tr>
+          <th class="c-check"><span class="checkbox" aria-hidden="true"></span></th>
+          <th class="c-icon"></th>
+          <th class="c-name"><span data-i18n="colName">Name</span> <span class="sort">↑</span></th>
+          <th class="c-size" data-i18n="colSize">Size</th>
+          <th class="c-date" data-i18n="colModified">Modified</th>
+          <th class="c-star"></th>
+        </tr>
+      </thead>
+      <tbody id="docRows"></tbody>
+    </table>
+    <p class="empty" id="emptyMsg" hidden></p>
+  </main>
 
   <!-- Document viewer -->
   <dialog class="viewer" id="viewer">

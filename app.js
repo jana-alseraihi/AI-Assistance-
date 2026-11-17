@@ -4,7 +4,12 @@ import { API_URL } from "./config.js";
 /* ---------------- UI text (English / Arabic) ---------------- */
 const T = {
   en: {
-    brand: "ECM Portal",
+    brandSub: "Enterprise Content Management",
+    crumbHome: "Enterprise",
+    crumbArchive: "Company Documents",
+    colName: "Name",
+    colSize: "Size",
+    colModified: "Modified",
     libraryTitle: "Document library",
     librarySub: "Browse documents, or ask the assistant.",
     searchPlaceholder: "Search documents",
@@ -37,7 +42,12 @@ const T = {
     classification: { internal: "Internal", confidential: "Confidential", public: "Public", secret: "Secret" },
   },
   ar: {
-    brand: "بوابة إدارة المحتوى",
+    brandSub: "نظام إدارة المحتوى المؤسسي",
+    crumbHome: "المؤسسة",
+    crumbArchive: "وثائق الشركة",
+    colName: "الاسم",
+    colSize: "الحجم",
+    colModified: "آخر تعديل",
     libraryTitle: "مكتبة الوثائق",
     librarySub: "تصفح الوثائق أو اسأل المساعد.",
     searchPlaceholder: "ابحث في الوثائق",
@@ -109,52 +119,58 @@ $("langBtn").addEventListener("click", () => {
 
 /* ---------------- Library ---------------- */
 function renderCategories() {
-  const nav = $("categoryNav");
-  nav.innerHTML = "";
+  const select = $("categorySelect");
+  select.innerHTML = "";
   for (const [key, label] of Object.entries(CATEGORIES)) {
-    const count = key === "all" ? DOCUMENTS.length : DOCUMENTS.filter((d) => d.category === key).length;
-    const btn = document.createElement("button");
-    btn.className = "cat-btn";
-    btn.type = "button";
-    btn.setAttribute("aria-pressed", String(key === activeCategory));
-    btn.innerHTML = `<span></span><span class="cat-count">${count}</span>`;
-    btn.firstChild.textContent = label[lang];
-    btn.addEventListener("click", () => { activeCategory = key; renderCategories(); renderDocs(); });
-    nav.appendChild(btn);
+    const opt = document.createElement("option");
+    opt.value = key;
+    opt.textContent = label[lang];
+    opt.selected = key === activeCategory;
+    select.appendChild(opt);
   }
+  $("crumbCurrent").textContent = CATEGORIES[activeCategory][lang];
+}
+$("categorySelect").addEventListener("change", (e) => {
+  activeCategory = e.target.value;
+  renderCategories();
+  renderDocs();
+});
+
+function formatDate(iso) {
+  const [y, m, d] = iso.split("-");
+  return ltr(`${m}/${d}/${y}`);
 }
 
 function renderDocs() {
   const q = normalize($("searchInput").value);
-  const grid = $("docGrid");
-  grid.innerHTML = "";
+  const rows = $("docRows");
+  rows.innerHTML = "";
   const docs = DOCUMENTS.filter((d) => {
     if (activeCategory !== "all" && d.category !== activeCategory) return false;
     if (!q) return true;
     const hay = normalize([d.id, d.title.en, d.title.ar, d.keywords, ...d.content.flatMap((s) => [s.en, s.ar])].join(" "));
     return q.split(" ").every((w) => hay.includes(w));
   });
-  if (!docs.length) {
-    grid.innerHTML = `<p class="empty"></p>`;
-    grid.firstChild.textContent = t("noDocs");
-    return;
-  }
+  $("emptyMsg").hidden = docs.length > 0;
+  $("emptyMsg").textContent = t("noDocs");
   for (const d of docs) {
-    const card = document.createElement("button");
-    card.type = "button";
-    card.className = "doc-card";
-    card.innerHTML = `
-      <div class="doc-id"></div>
-      <h3></h3>
-      <div class="meta"><span class="owner"></span><span class="date"></span></div>
-      <div><span class="tag ${d.classification}"></span></div>`;
-    card.querySelector(".doc-id").textContent = d.id;
-    card.querySelector("h3").textContent = d.title[lang];
-    card.querySelector(".owner").textContent = d.owner[lang];
-    card.querySelector(".date").textContent = `${t("updated")}: ${ltr(d.updated)}`;
-    card.querySelector(".tag").textContent = t("classification")[d.classification];
-    card.addEventListener("click", () => openDoc(d.id));
-    grid.appendChild(card);
+    const tr = document.createElement("tr");
+    tr.tabIndex = 0;
+    tr.innerHTML = `
+      <td class="c-check"><span class="checkbox" aria-hidden="true"></span></td>
+      <td class="c-icon"><span class="file-icon ${d.file}">${d.file === "pdf" ? "PDF" : d.file === "xlsx" ? "X" : "W"}</span></td>
+      <td class="c-name"><span class="doc-name"></span><span class="tag ${d.classification}"></span><span class="doc-sub"></span></td>
+      <td class="c-size"></td>
+      <td class="c-date"></td>
+      <td class="c-star"><span class="star" aria-hidden="true">☆</span></td>`;
+    tr.querySelector(".doc-name").textContent = `${d.title[lang]}.${d.file}`;
+    tr.querySelector(".tag").textContent = t("classification")[d.classification];
+    tr.querySelector(".doc-sub").textContent = `${ltr(d.id)} · ${d.owner[lang]}`;
+    tr.querySelector(".c-size").textContent = d.size;
+    tr.querySelector(".c-date").textContent = formatDate(d.updated);
+    tr.addEventListener("click", () => openDoc(d.id));
+    tr.addEventListener("keydown", (e) => { if (e.key === "Enter") openDoc(d.id); });
+    rows.appendChild(tr);
   }
 }
 $("searchInput").addEventListener("input", renderDocs);

@@ -6,6 +6,8 @@
 export const DOCUMENTS = [
   {
     id: "POL-001",
+    file: "docx",
+    size: "48 KB",
     category: "policy",
     title: { en: "Document Retention Policy", ar: "سياسة الاحتفاظ بالوثائق" },
     owner: { en: "Records Management", ar: "إدارة الوثائق والمحفوظات" },
@@ -22,6 +24,8 @@ export const DOCUMENTS = [
   },
   {
     id: "HR-014",
+    file: "docx",
+    size: "36 KB",
     category: "hr",
     title: { en: "Remote Work Policy", ar: "سياسة العمل عن بُعد" },
     owner: { en: "Human Resources", ar: "الموارد البشرية" },
@@ -37,6 +41,8 @@ export const DOCUMENTS = [
   },
   {
     id: "CTR-2026-031",
+    file: "pdf",
+    size: "412 KB",
     category: "contract",
     title: { en: "IT Support Services Contract — Nova Tech", ar: "عقد خدمات الدعم الفني — نوفا تك" },
     owner: { en: "Procurement", ar: "المشتريات" },
@@ -53,6 +59,8 @@ export const DOCUMENTS = [
   },
   {
     id: "INV-88412",
+    file: "pdf",
+    size: "88 KB",
     category: "finance",
     title: { en: "Invoice INV-88412 — Office Supplies", ar: "فاتورة INV-88412 — مستلزمات مكتبية" },
     owner: { en: "Finance", ar: "المالية" },
@@ -68,6 +76,8 @@ export const DOCUMENTS = [
   },
   {
     id: "PRC-007",
+    file: "docx",
+    size: "54 KB",
     category: "procedure",
     title: { en: "Procurement Procedure", ar: "إجراء المشتريات" },
     owner: { en: "Procurement", ar: "المشتريات" },
@@ -83,6 +93,8 @@ export const DOCUMENTS = [
   },
   {
     id: "SEC-002",
+    file: "pdf",
+    size: "121 KB",
     category: "policy",
     title: { en: "Information Classification Standard", ar: "معيار تصنيف المعلومات" },
     owner: { en: "Information Security", ar: "أمن المعلومات" },
