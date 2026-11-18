@@ -1,5 +1,5 @@
 /*!
- * Pelli v1.3 — official Pelli code (see CLAUDE.md). Use this copy on every site.
+ * Pelli v1.4 — official Pelli code (see CLAUDE.md). Use this copy on every site.
  * Pelli — a friendly, bilingual (English / Arabic) page assistant.
  * No AI model and no server: Pelli searches the words on the page (and any documents the site
  * registers), says where the answer is, summarizes, answers the time and date, and gives
@@ -226,12 +226,12 @@
           <button type="button" class="pelli-close">×</button>
         </header>
         <div class="pelli-log" aria-live="polite"></div>
-        <form class="pelli-form">
+        <div class="pelli-form" role="search">
           <input class="pelli-input" autocomplete="off" enterkeyhint="send">
-          <button class="pelli-send" type="submit" aria-label="Send">
+          <button class="pelli-send" type="button" aria-label="Send">
             <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><path fill="currentColor" d="M7 5.2c0-1.3 1.4-2 2.4-1.3l10 7.2c.9.6.9 2 0 2.6l-10 7.2c-1 .7-2.4 0-2.4-1.3V5.2Z"/></svg>
           </button>
-        </form>
+        </div>
       </section>`;
     document.body.appendChild(root);
     el = {
@@ -252,12 +252,16 @@
       setLang(b.dataset.lang);
       if (opts.onLangChange) opts.onLangChange(lang);
     }));
-    el.form.addEventListener("submit", (e) => {
-      e.preventDefault();
+    // No HTML form element: classic SharePoint's Content Editor rejects pages that contain one.
+    const submit = () => {
       const q = el.input.value.trim();
       if (!q) return;
       el.input.value = "";
       ask(q);
+    };
+    el.root.querySelector(".pelli-send").addEventListener("click", submit);
+    el.input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.isComposing) { e.preventDefault(); submit(); }
     });
   }
 
@@ -587,7 +591,7 @@
   }
 
   const api = {
-    version: "1.3",
+    version: "1.4",
     init, open, close, ask, setLang,
     setKnowledge(items) { knowledge = items || []; },
     get lang() { return lang; },

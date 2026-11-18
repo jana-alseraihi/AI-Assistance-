@@ -2,7 +2,7 @@
 
 ## Pelli is the official assistant — `pelli/` is the source of truth
 
-The folder `pelli/` is **Pelli's official code (v1.3)**. Use it as-is whenever Pelli is added to another site, and keep every site on this same copy.
+The folder `pelli/` is **Pelli's official code (v1.4)**. Use it as-is whenever Pelli is added to another site, and keep every site on this same copy.
 
 | File | What it is |
 |---|---|
@@ -20,6 +20,7 @@ Rules for changes:
 - The chat frame is **SABIC light blue**; the chat area inside stays **white and easy on the eyes**.
 - Pelli answers by **word search only** (no cloud AI: not allowed on the company network). Nothing the user types leaves the browser.
 - Keep both languages (Arabic and English) working for every feature.
+- No HTML form tag anywhere in `pelli/`, not even in comments (classic SharePoint's Content Editor rejects it).
 - `pelli/` makes **no external requests** (no web fonts, no CDNs), so it works on closed company networks and classic SharePoint.
 - When Pelli changes, bump the version in the header of `pelli/pelli.js` and in this file.
 
