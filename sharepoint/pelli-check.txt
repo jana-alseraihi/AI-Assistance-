@@ -1,0 +1,19 @@
+<!-- Pelli check: put this file's link in a Content Editor web part to see what SharePoint allows. -->
+<div id="pelli-check" style="font: 16px/1.6 'Segoe UI', Tahoma, sans-serif; padding: 14px 18px; border-radius: 10px; background: #fde8e6; color: #8a1c12; border: 2px solid #e8a39b;">
+  <b>1 ✓ The link works / الرابط شغال</b><br>
+  <span id="pelli-check-js"><b>2 ✗ Scripts are blocked / السكربتات ممنوعة</b><br>
+  SharePoint removed the script, so Pelli can't run on this site. Ask the site owner or IT to allow custom scripts.<br>
+  الشيربوينت شال السكربت، فبيلي ما يقدر يشتغل في هذا الموقع. اطلب من مالك الموقع أو IT السماح بالسكربتات (custom scripts).</span>
+</div>
+<script>
+(function () {
+  var box = document.getElementById("pelli-check");
+  var ie = !!document.documentMode;
+  box.style.background = ie ? "#fff4d6" : "#e3f5fd";
+  box.style.color = ie ? "#7a5200" : "#0a4f7a";
+  box.style.borderColor = ie ? "#f0c36a" : "#8fd3f0";
+  document.getElementById("pelli-check-js").innerHTML = ie
+    ? "<b>2 ✓ Scripts work / السكربتات شغالة</b><br><b>3 ✗ Internet Explorer mode / وضع إنترنت إكسبلورر</b><br>This page opens in IE mode (document mode " + document.documentMode + "). Pelli needs normal Edge or Chrome.<br>الصفحة تفتح بوضع IE. بيلي يحتاج Edge العادي أو Chrome."
+    : "<b>2 ✓ Scripts work / السكربتات شغالة</b><br><b>3 ✓ Browser OK / المتصفح مناسب</b><br>Pelli can run here. If it still doesn't show, check the link to pelli-sharepoint.txt.<br>بيلي يقدر يشتغل هنا. إذا ما ظهر، تأكد من رابط ملف pelli-sharepoint.txt.";
+})();
+</script>
